@@ -60,51 +60,44 @@ export function ActiveGatherCard() {
     const mockCount = MOCK_GATHER_PARTICIPANTS.length;
     const mockMax = 10;
     return (
-      <Link href="/gather" className="block">
-        <Card className="hover:border-primary/30 transition-colors">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Badge variant="default">
-                  {t("gather.status.open")}
-                </Badge>
-                <span className="text-sm text-muted-foreground">
-                  {t("gather.mode.5v5")}
-                </span>
-              </div>
-              <div className="text-sm">
-                <span className="font-semibold">{mockCount}</span>
-                <span className="text-muted-foreground">/{mockMax}</span>
-              </div>
-            </div>
+      <Link href="/gather" className="block border rounded-md p-6 hover:border-primary/40 transition-colors">
+        <div className="flex items-baseline justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <Badge variant="default">{t("gather.status.open")}</Badge>
+            <span className="text-sm text-muted-foreground">{t("gather.mode.5v5")}</span>
+          </div>
+          <span className="text-sm tabular-nums">
+            <span className="font-bold text-foreground">{mockCount}</span>
+            <span className="text-muted-foreground">/{mockMax}</span>
+          </span>
+        </div>
 
-            {/* Player names */}
-            <div className="flex flex-wrap gap-2 mt-4">
-              {MOCK_GATHER_PARTICIPANTS.map((name) => (
-                <span key={name} className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-md">
-                  {name}
-                </span>
-              ))}
-              {Array.from({ length: mockMax - mockCount }).map((_, i) => (
-                <span key={`empty-${i}`} className="text-xs bg-secondary text-muted-foreground px-2 py-1 rounded-md">
-                  ...
-                </span>
-              ))}
+        {/* Player slots — two columns like the game scoreboard */}
+        <div className="grid grid-cols-2 gap-x-8 gap-y-1">
+          {MOCK_GATHER_PARTICIPANTS.map((name) => (
+            <div key={name} className="flex items-center gap-2 py-1.5 text-sm border-b border-border/40">
+              <span className="text-xs">🇮🇱</span>
+              <span className="font-medium">{name}</span>
             </div>
+          ))}
+          {Array.from({ length: mockMax - mockCount }).map((_, i) => (
+            <div key={`empty-${i}`} className="py-1.5 text-sm text-muted-foreground/40 border-b border-border/20">
+              empty slot
+            </div>
+          ))}
+        </div>
 
-            {/* Progress bar */}
-            <div className="flex gap-1.5 mt-4">
-              {Array.from({ length: mockMax }).map((_, i) => (
-                <div
-                  key={i}
-                  className={`h-2 flex-1 rounded-full ${
-                    i < mockCount ? "bg-primary" : "bg-secondary"
-                  }`}
-                />
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+        {/* Progress */}
+        <div className="flex gap-1 mt-5">
+          {Array.from({ length: mockMax }).map((_, i) => (
+            <div
+              key={i}
+              className={`h-1.5 flex-1 rounded-sm ${
+                i < mockCount ? "bg-primary" : "bg-border"
+              }`}
+            />
+          ))}
+        </div>
       </Link>
     );
   }

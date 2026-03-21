@@ -4,7 +4,6 @@ import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Link } from "@/i18n/routing";
-import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import type { AttendanceStats } from "@/types/gather";
@@ -45,25 +44,24 @@ export function LeaderboardTable() {
   }, [period]);
 
   return (
-    <Card>
-      <CardContent className="p-4">
-        <div className="px-4 py-3 border-b">
-          <div className="flex gap-1">
-            {(["allTime", "last30", "last7"] as Period[]).map((p) => (
-              <button
-                key={p}
-                onClick={() => setPeriod(p)}
-                className={`px-3 py-1.5 rounded-md text-sm transition-colors ${
-                  period === p
-                    ? "bg-primary/10 text-primary font-medium"
-                    : "text-muted-foreground hover:text-foreground hover:bg-secondary"
-                }`}
-              >
-                {t(p)}
-              </button>
-            ))}
-          </div>
-        </div>
+    <div>
+      <div className="flex gap-1 mb-4">
+        {(["allTime", "last30", "last7"] as Period[]).map((p) => (
+          <button
+            key={p}
+            onClick={() => setPeriod(p)}
+            className={`px-3 py-1.5 rounded-md text-sm transition-colors ${
+              period === p
+                ? "bg-primary/15 text-primary font-medium"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            {t(p)}
+          </button>
+        ))}
+      </div>
+
+      <div className="border rounded-md overflow-hidden">
 
         {loading ? (
           <div className="p-8 text-center">
@@ -112,7 +110,7 @@ export function LeaderboardTable() {
               </TableBody>
             </Table>
           )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
