@@ -151,7 +151,12 @@ export function GatherQueue() {
               : "bg-muted-foreground"
             }`}
           />
-          <CardTitle className="text-base">{t(`status.${gather.status}`)}</CardTitle>
+          <CardTitle className={`text-base ${
+            gather.status === "open" ? "status-open"
+            : gather.status === "live" ? "status-live"
+            : gather.status === "ready" ? "status-ready"
+            : ""
+          }`}>{t(`status.${gather.status}`)}</CardTitle>
           <Badge variant="outline">{t(`mode.${gather.mode}`)}</Badge>
         </div>
         <span className="text-sm">

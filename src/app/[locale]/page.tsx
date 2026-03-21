@@ -13,8 +13,8 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
   return (
     <div className="space-y-20">
-      {/* Hero */}
-      <section className="pt-16 pb-8">
+      {/* Hero — topo grid background for war room feel */}
+      <section className="relative pt-16 pb-8 -mx-4 sm:-mx-6 px-4 sm:px-6 topo-grid">
         <div className="grid md:grid-cols-[1fr_auto] gap-12 items-center">
           <div className="space-y-6">
             <p className="animate-fade-up text-xs font-semibold tracking-[0.2em] uppercase text-accent">
@@ -101,7 +101,10 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
       {/* Leaderboard */}
       <section className="scroll-reveal pb-16">
-        <h2 className="font-display text-2xl font-bold tracking-tight mb-8">{t("home.leaderboard")}</h2>
+        <div className="flex items-baseline gap-3 mb-8">
+          <h2 className="font-display text-2xl font-bold tracking-tight">{t("home.leaderboard")}</h2>
+          <span className="text-xs text-muted-foreground/50 uppercase tracking-wider font-mono">Top 20</span>
+        </div>
         <LeaderboardTable />
       </section>
     </div>

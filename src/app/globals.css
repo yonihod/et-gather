@@ -375,6 +375,177 @@
   content: counter(count);
 }
 
+/* ══════════════════════════════════════════════════════════════════════
+   GAME UI — Tactical visual system
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* ── Topo grid background texture (war room atmosphere) ───────────── */
+.topo-grid {
+  background-image:
+    linear-gradient(oklch(0.65 0.14 145 / 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, oklch(0.65 0.14 145 / 0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* ── HUD corner brackets (tactical card decorator) ────────────────── */
+.hud-corners {
+  position: relative;
+}
+
+.hud-corners::before,
+.hud-corners::after {
+  content: "";
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  pointer-events: none;
+  opacity: 0.4;
+}
+
+.hud-corners::before {
+  top: -1px;
+  left: -1px;
+  border-top: 2px solid oklch(0.65 0.14 145);
+  border-left: 2px solid oklch(0.65 0.14 145);
+}
+
+.hud-corners::after {
+  bottom: -1px;
+  right: -1px;
+  border-bottom: 2px solid oklch(0.65 0.14 145);
+  border-right: 2px solid oklch(0.65 0.14 145);
+}
+
+[dir="rtl"] .hud-corners::before {
+  left: auto;
+  right: -1px;
+  border-left: none;
+  border-right: 2px solid oklch(0.65 0.14 145);
+}
+
+[dir="rtl"] .hud-corners::after {
+  right: auto;
+  left: -1px;
+  border-right: none;
+  border-left: 2px solid oklch(0.65 0.14 145);
+}
+
+/* Variant: accent/gold corners for top-rank items */
+.hud-corners-accent::before {
+  border-color: oklch(0.70 0.14 70);
+}
+.hud-corners-accent::after {
+  border-color: oklch(0.70 0.14 70);
+}
+
+/* ── Scoreboard header bar ────────────────────────────────────────── */
+.scoreboard-header {
+  background: linear-gradient(
+    90deg,
+    oklch(0.65 0.14 145 / 0.12),
+    oklch(0.65 0.14 145 / 0.04) 50%,
+    transparent
+  );
+  border-bottom: 1px solid oklch(0.65 0.14 145 / 0.2);
+}
+
+[dir="rtl"] .scoreboard-header {
+  background: linear-gradient(
+    -90deg,
+    oklch(0.65 0.14 145 / 0.12),
+    oklch(0.65 0.14 145 / 0.04) 50%,
+    transparent
+  );
+}
+
+/* ── Rank badge backgrounds (replaces plain emoji) ────────────────── */
+.rank-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.rank-badge-gold {
+  background: linear-gradient(135deg, oklch(0.70 0.14 70 / 0.2), oklch(0.60 0.12 70 / 0.08));
+  border: 1px solid oklch(0.70 0.14 70 / 0.3);
+  color: oklch(0.80 0.14 70);
+}
+
+.rank-badge-silver {
+  background: linear-gradient(135deg, oklch(0.65 0.03 250 / 0.15), oklch(0.55 0.02 250 / 0.06));
+  border: 1px solid oklch(0.65 0.03 250 / 0.25);
+  color: oklch(0.75 0.03 250);
+}
+
+.rank-badge-bronze {
+  background: linear-gradient(135deg, oklch(0.55 0.10 50 / 0.15), oklch(0.45 0.08 50 / 0.06));
+  border: 1px solid oklch(0.55 0.10 50 / 0.25);
+  color: oklch(0.70 0.10 50);
+}
+
+/* ── Alternating scoreboard rows ──────────────────────────────────── */
+.scoreboard-row:nth-child(even) {
+  background: oklch(0.14 0.008 80 / 0.5);
+}
+
+/* ── Map accent bar (for server status) ───────────────────────────── */
+.map-accent-bar {
+  position: relative;
+  padding-left: 10px;
+}
+
+.map-accent-bar::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 2px;
+  bottom: 2px;
+  width: 3px;
+  border-radius: 2px;
+  background: oklch(0.70 0.14 70);
+}
+
+[dir="rtl"] .map-accent-bar {
+  padding-left: 0;
+  padding-right: 10px;
+}
+
+[dir="rtl"] .map-accent-bar::before {
+  left: auto;
+  right: 0;
+}
+
+/* ── Team color accents ───────────────────────────────────────────── */
+.team-allies {
+  --team-color: oklch(0.60 0.15 250);
+}
+
+.team-axis {
+  --team-color: oklch(0.60 0.18 25);
+}
+
+/* ── Status indicator — large, game-style ─────────────────────────── */
+.status-open {
+  color: oklch(0.70 0.18 145);
+  text-shadow: 0 0 10px oklch(0.70 0.18 145 / 0.3);
+}
+
+.status-live {
+  color: oklch(0.65 0.22 25);
+  text-shadow: 0 0 12px oklch(0.65 0.22 25 / 0.4);
+}
+
+.status-ready {
+  color: oklch(0.75 0.15 85);
+  text-shadow: 0 0 10px oklch(0.75 0.15 85 / 0.3);
+}
+
 /* ── #1 rank shimmer ──────────────────────────────────────────────── */
 @property --shimmer-x {
   syntax: "<percentage>";

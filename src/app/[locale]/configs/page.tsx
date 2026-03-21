@@ -37,7 +37,7 @@ export default function ConfigsPage() {
   const t = useTranslations("configs");
 
   return (
-    <div className="space-y-8 max-w-2xl mx-auto">
+    <div className="space-y-8 max-w-2xl mx-auto topo-grid -mx-4 sm:-mx-6 px-4 sm:px-6 py-2">
       <div className="animate-fade-up">
         <h1 className="text-2xl font-bold">{t("title")}</h1>
         <p className="text-muted-foreground mt-1">{t("subtitle")}</p>
@@ -49,7 +49,7 @@ export default function ConfigsPage() {
         ))}
       </div>
 
-      <Card className="animate-fade-up" style={{ animationDelay: "400ms" }}>
+      <Card className="animate-fade-up hud-corners" style={{ animationDelay: "400ms" }}>
         <CardHeader>
           <CardTitle>{t("setupGuide")}</CardTitle>
         </CardHeader>
@@ -135,7 +135,7 @@ function ConfigCard({ cfg, index, downloadLabel, categoryLabel }: { cfg: ConfigF
   return (
     <Card
       ref={cardRef}
-      className="tilt-card animate-fade-up"
+      className="tilt-card animate-fade-up hud-corners"
       style={{ animationDelay: `${index * 80 + 100}ms` }}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}

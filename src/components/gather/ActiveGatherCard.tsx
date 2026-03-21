@@ -141,7 +141,7 @@ export function ActiveGatherCard() {
 
   return (
     <div
-      className={`border rounded-md p-6 transition-all duration-300 ${
+      className={`border rounded-md p-6 transition-all duration-300 hud-corners ${
         isLive ? "animate-tactical-pulse border-destructive/40" : "hover:border-primary/40"
       }`}
     >

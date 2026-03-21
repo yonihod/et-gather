@@ -20,7 +20,6 @@ export function ProfileView({ userId }: { userId: string }) {
   const [loading, setLoading] = useState(true);
   const [isOwner, setIsOwner] = useState(false);
   const [editing, setEditing] = useState(false);
-  const [editName, setEditName] = useState("");
   const [editNickname, setEditNickname] = useState("");
   const [saving, setSaving] = useState(false);
 
@@ -45,8 +44,7 @@ export function ProfileView({ userId }: { userId: string }) {
       const p = profileRes.data as Profile | null;
       setProfile(p);
       if (p) {
-        setEditName(p.display_name);
-        setEditNickname(p.et_nickname || "");
+        setEditNickname(p.et_nickname || p.display_name);
       }
       setStats(statsRes.data as AttendanceStats | null);
       setRecentGathers(
@@ -60,22 +58,19 @@ export function ProfileView({ userId }: { userId: string }) {
   }, [userId]);
 
   async function handleSave() {
-    if (!profile) return;
+    if (!profile || !editNickname.trim()) return;
     setSaving(true);
+    const name = editNickname.trim();
     await supabase
       .from("profiles")
       .update({
-        display_name: editName.trim() || profile.display_name,
-        et_nickname: editNickname.trim() || null,
+        display_name: name,
+        et_nickname: name,
         updated_at: new Date().toISOString(),
       })
       .eq("id", userId);
 
-    setProfile({
-      ...profile,
-      display_name: editName.trim() || profile.display_name,
-      et_nickname: editNickname.trim() || null,
-    });
+    setProfile({ ...profile, display_name: name, et_nickname: name });
     setSaving(false);
     setEditing(false);
     refreshProfile();
@@ -108,15 +103,7 @@ export function ProfileView({ userId }: { userId: string }) {
                   placeholder="e.g. RoNN, WAKTAKI..."
                   dir="ltr"
                   maxLength={30}
-                />
-              </div>
-              <div>
-                <label className="text-sm font-medium block mb-1.5">{t("displayName")}</label>
-                <Input
-                  value={editName}
-                  onChange={(e) => setEditName(e.target.value)}
-                  placeholder={profile.display_name}
-                  maxLength={50}
+                  autoFocus
                 />
               </div>
               <div className="flex gap-2">
@@ -138,12 +125,7 @@ export function ProfileView({ userId }: { userId: string }) {
                   </AvatarFallback>
                 </Avatar>
                 <div>
-                  <h1 className="text-xl font-bold">{profile.display_name}</h1>
-                  {profile.et_nickname && (
-                    <p className="text-sm text-muted-foreground">
-                      {t("etNickname")}: <span dir="ltr" className="inline-block">{profile.et_nickname}</span>
-                    </p>
-                  )}
+                  <h1 className="text-xl font-bold" dir="ltr">{profile.et_nickname || profile.display_name}</h1>
                   <p className="text-xs text-muted-foreground mt-1">
                     {t("memberSince")} {new Date(profile.created_at).toLocaleDateString()}
                   </p>

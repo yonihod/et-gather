@@ -40,8 +40,7 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
 
 function NicknameSetup({ userId, currentName, onComplete }: { userId: string; currentName: string; onComplete: () => void }) {
   const t = useTranslations("auth");
-  const [nickname, setNickname] = useState("");
-  const [displayName, setDisplayName] = useState(currentName);
+  const [nickname, setNickname] = useState(currentName);
   const [saving, setSaving] = useState(false);
 
   const supabase = createClient();
@@ -51,11 +50,12 @@ function NicknameSetup({ userId, currentName, onComplete }: { userId: string; cu
     if (!nickname.trim()) return;
     setSaving(true);
 
+    const name = nickname.trim();
     await supabase
       .from("profiles")
       .update({
-        et_nickname: nickname.trim(),
-        display_name: displayName.trim() || currentName,
+        display_name: name,
+        et_nickname: name,
         updated_at: new Date().toISOString(),
       })
       .eq("id", userId);
@@ -94,16 +94,6 @@ function NicknameSetup({ userId, currentName, onComplete }: { userId: string; cu
                   dir="ltr"
                 />
                 <p className="text-xs text-muted-foreground mt-1">{t("nicknameHint")}</p>
-              </div>
-
-              <div>
-                <label className="text-sm font-medium block mb-1.5">{t("displayNameLabel")}</label>
-                <Input
-                  placeholder={currentName}
-                  value={displayName}
-                  onChange={(e) => setDisplayName(e.target.value)}
-                  maxLength={50}
-                />
               </div>
 
               <Button type="submit" disabled={saving || !nickname.trim()} className="w-full">
