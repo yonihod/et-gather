@@ -143,11 +143,41 @@ export function ServerStatus() {
       )}
 
       {/* Server IP */}
-      <div className="mt-3 pt-2 border-t border-border/30">
-        <p className="text-[10px] text-muted-foreground font-mono" dir="ltr">
-          /connect 84.229.240.21
-        </p>
-      </div>
+      <CopyConnect />
+    </div>
+  );
+}
+
+function CopyConnect() {
+  const [copied, setCopied] = useState(false);
+
+  function handleCopy() {
+    navigator.clipboard.writeText("/connect 84.229.240.21");
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+
+  return (
+    <div className="mt-3 pt-2 border-t border-border/30 flex items-center justify-between">
+      <p className="text-[10px] text-muted-foreground font-mono" dir="ltr">
+        /connect 84.229.240.21
+      </p>
+      <button
+        onClick={handleCopy}
+        className="text-muted-foreground hover:text-foreground transition-colors p-1"
+        title="Copy to clipboard"
+      >
+        {copied ? (
+          <svg className="w-3 h-3 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
+        ) : (
+          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+            <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+          </svg>
+        )}
+      </button>
     </div>
   );
 }
