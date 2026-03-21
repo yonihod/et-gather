@@ -81,28 +81,28 @@ export function LeaderboardTable() {
               </TableHeader>
               <TableBody>
                 {stats.map((s, i) => (
-                  <TableRow key={s.user_id}>
-                    <TableCell className="font-mono text-muted-foreground">
-                      {i === 0 ? <span className="text-yellow-400 text-lg">🥇</span>
-                        : i === 1 ? <span className="text-gray-300 text-lg">🥈</span>
-                        : i === 2 ? <span className="text-amber-600 text-lg">🥉</span>
-                        : i + 1}
+                  <TableRow key={s.user_id} className="transition-colors duration-150 hover:bg-secondary/50">
+                    <TableCell className="font-mono text-muted-foreground tabular-nums">
+                      {i === 0 ? <span className="text-lg">🥇</span>
+                        : i === 1 ? <span className="text-lg">🥈</span>
+                        : i === 2 ? <span className="text-lg">🥉</span>
+                        : <span className="text-muted-foreground/60">{i + 1}</span>}
                     </TableCell>
                     <TableCell>
-                      <Link href={`/profile/${s.user_id}` as "/"} className="flex items-center gap-3 hover:text-primary transition-colors">
+                      <Link href={`/profile/${s.user_id}` as "/"} className="flex items-center gap-3 transition-colors duration-150 hover:text-primary">
                         <span className="text-base" title="Israel">🇮🇱</span>
                         <Avatar className="h-7 w-7">
                           <AvatarImage src={s.avatar_url || undefined} />
-                          <AvatarFallback className="text-xs">{s.display_name.charAt(0).toUpperCase()}</AvatarFallback>
+                          <AvatarFallback className={`text-xs ${i < 3 ? "bg-primary/15 text-primary" : ""}`}>{s.display_name.charAt(0).toUpperCase()}</AvatarFallback>
                         </Avatar>
-                        <span className="font-medium">{s.display_name}</span>
+                        <span className={`font-medium ${i === 0 ? "text-accent" : ""}`}>{s.display_name}</span>
                         {s.et_nickname && s.et_nickname !== s.display_name && <span className="text-muted-foreground text-xs">({s.et_nickname})</span>}
                       </Link>
                     </TableCell>
-                    <TableCell className="text-end text-muted-foreground">
+                    <TableCell className="text-end text-muted-foreground tabular-nums">
                       {period === "allTime" ? s.total_gathers : s.gathers_last_30_days}
                     </TableCell>
-                    <TableCell className="text-end font-semibold text-primary">
+                    <TableCell className={`text-end font-semibold tabular-nums ${i < 3 ? "text-accent" : "text-primary"}`}>
                       {s.attendance_points}
                     </TableCell>
                   </TableRow>

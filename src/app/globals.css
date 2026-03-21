@@ -10,33 +10,31 @@
     --font-sans: var(--font-sans);
   }
 
-  /* Military-nostalgic dark theme — warm tinted, not cold */
   :root {
     /* Warm dark backgrounds tinted toward olive/khaki */
     --background: oklch(0.12 0.008 80);
     --foreground: oklch(0.90 0.01 80);
 
-    /* Cards slightly lighter, warm tint */
     --card: oklch(0.16 0.01 80);
     --card-foreground: oklch(0.90 0.01 80);
 
     --popover: oklch(0.16 0.01 80);
     --popover-foreground: oklch(0.90 0.01 80);
 
-    /* Primary — military green, not neon */
+    /* Primary — military green */
     --primary: oklch(0.65 0.14 145);
     --primary-foreground: oklch(0.12 0.008 80);
 
-    /* Secondary — warm khaki-tinted dark */
+    /* Secondary — warm khaki */
     --secondary: oklch(0.20 0.015 80);
     --secondary-foreground: oklch(0.85 0.01 80);
 
-    /* Muted — warm gray, not dead gray */
+    /* Muted — warm gray */
     --muted: oklch(0.22 0.012 80);
     --muted-foreground: oklch(0.58 0.015 80);
 
-    /* Accent — olive/khaki for variety */
-    --accent: oklch(0.55 0.10 90);
+    /* Accent — warm amber/gold for variety */
+    --accent: oklch(0.70 0.14 70);
     --accent-foreground: oklch(0.12 0.008 80);
 
     --destructive: oklch(0.60 0.20 25);
@@ -45,7 +43,7 @@
     --ring: oklch(0.65 0.14 145);
 
     --chart-1: oklch(0.65 0.14 145);
-    --chart-2: oklch(0.55 0.10 90);
+    --chart-2: oklch(0.70 0.14 70);
     --chart-3: oklch(0.60 0.15 40);
     --chart-4: oklch(0.50 0.12 250);
     --chart-5: oklch(0.55 0.08 320);
@@ -60,6 +58,10 @@
     --sidebar-accent-foreground: oklch(0.90 0.01 80);
     --sidebar-border: oklch(0.24 0.015 80);
     --sidebar-ring: oklch(0.65 0.14 145);
+
+    /* Animation easing — natural deceleration, not bouncy */
+    --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   * {
@@ -71,5 +73,73 @@
   html {
     @apply font-sans;
     font-kerning: normal;
+  }
+}
+
+/* Entrance animations */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@layer utilities {
+  .animate-fade-up {
+    animation: fade-up 0.6s var(--ease-out-quart) both;
+  }
+  .animate-fade-in {
+    animation: fade-in 0.5s var(--ease-out-quart) both;
+  }
+  .animate-slide-right {
+    animation: slide-in-right 0.6s var(--ease-out-quart) both;
+  }
+  .animate-slide-left {
+    animation: slide-in-left 0.6s var(--ease-out-quart) both;
+  }
+  .delay-100 { animation-delay: 100ms; }
+  .delay-200 { animation-delay: 200ms; }
+  .delay-300 { animation-delay: 300ms; }
+  .delay-400 { animation-delay: 400ms; }
+  .delay-500 { animation-delay: 500ms; }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

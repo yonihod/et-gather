@@ -63,21 +63,21 @@ export function ServerStatus() {
   }
 
   return (
-    <div className="border rounded-md p-4">
+    <div className="border rounded-md p-4 border-s-2 border-s-primary/50">
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-          <span className="text-sm font-semibold">{t("title")}</span>
+          <span className="text-sm font-semibold text-primary">{t("title")}</span>
         </div>
-        <span className="text-xs tabular-nums text-muted-foreground">
+        <span className="text-xs tabular-nums font-medium text-accent">
           {data.players.length}/{data.maxPlayers}
         </span>
       </div>
 
       {/* Map */}
       <div className="text-xs text-muted-foreground mb-3">
-        {t("map")}: <span className="text-foreground font-medium">{data.map}</span>
+        {t("map")}: <span className="text-accent font-medium">{data.map}</span>
       </div>
 
       {/* Player list */}
