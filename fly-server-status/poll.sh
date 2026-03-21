@@ -49,5 +49,8 @@ EOF
     echo "[$(date -u +%H:%M:%S)] OFFLINE"
   fi
 
+  # Purge Vercel cache
+  curl -sf "https://et-gather.vercel.app/api/revalidate?token=$REVALIDATION_TOKEN" > /dev/null 2>&1 || true
+
   sleep 60
 done
