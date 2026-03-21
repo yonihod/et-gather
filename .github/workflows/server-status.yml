@@ -1,0 +1,69 @@
+name: Server Status Backup
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    steps:
+      - name: Query ET server and update Supabase
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          # Skip if Fly.io updated within the last 3 minutes
+          CURRENT=$(curl -sf "$SUPABASE_URL/rest/v1/server_status?id=eq.1&select=updated_at" \
+            -H "apikey: $SUPABASE_KEY" | grep -oP '\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}')
+          if [ -n "$CURRENT" ]; then
+            LAST_UPDATE=$(date -d "$CURRENT" +%s 2>/dev/null || date -j -f "%Y-%m-%dT%H:%M:%S" "$CURRENT" +%s 2>/dev/null || echo 0)
+            NOW=$(date +%s)
+            AGE=$((NOW - LAST_UPDATE))
+            if [ "$AGE" -lt 180 ]; then
+              echo "Fly.io updated ${AGE}s ago — skipping"
+              exit 0
+            fi
+          fi
+
+          RAW=$(printf '\xff\xff\xff\xffgetstatus\n' | nc -u -w 3 84.229.240.21 27960 2>/dev/null || true)
+
+          if echo "$RAW" | grep -q "statusResponse"; then
+            VARS=$(echo "$RAW" | sed -n '2p')
+            HOSTNAME=$(echo "$VARS" | grep -oP '(?<=\\sv_hostname\\)[^\\]+' | sed 's/\^[0-9a-zA-Z]//g')
+            MAP=$(echo "$VARS" | grep -oP '(?<=\\mapname\\)[^\\]+')
+            MAXCLIENTS=$(echo "$VARS" | grep -oP '(?<=\\sv_maxclients\\)[^\\]+')
+
+            PLAYERS="["
+            FIRST=true
+            while IFS= read -r line; do
+              if echo "$line" | grep -qP '^\-?\d+ \d+ "'; then
+                SCORE=$(echo "$line" | awk '{print $1}')
+                PING=$(echo "$line" | awk '{print $2}')
+                NAME=$(echo "$line" | grep -oP '"[^"]+"' | tr -d '"' | sed 's/\^[0-9a-zA-Z]//g')
+                if [ "$PING" -gt 0 ] 2>/dev/null; then
+                  if [ "$FIRST" = true ]; then FIRST=false; else PLAYERS="$PLAYERS,"; fi
+                  PLAYERS="$PLAYERS{\"name\":\"$NAME\",\"score\":$SCORE,\"ping\":$PING}"
+                fi
+              fi
+            done <<< "$(echo "$RAW" | tail -n +3)"
+            PLAYERS="$PLAYERS]"
+
+            curl -sf -X PATCH "$SUPABASE_URL/rest/v1/server_status?id=eq.1" \
+              -H "apikey: $SUPABASE_KEY" \
+              -H "Authorization: Bearer $SUPABASE_KEY" \
+              -H "Content-Type: application/json" \
+              -d "{\"online\":true,\"hostname\":\"$HOSTNAME\",\"map\":\"$MAP\",\"players\":$PLAYERS,\"max_players\":${MAXCLIENTS:-20},\"updated_at\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"}"
+
+            echo "✓ Online: $HOSTNAME - $MAP (backup)"
+          else
+            curl -sf -X PATCH "$SUPABASE_URL/rest/v1/server_status?id=eq.1" \
+              -H "apikey: $SUPABASE_KEY" \
+              -H "Authorization: Bearer $SUPABASE_KEY" \
+              -H "Content-Type: application/json" \
+              -d "{\"online\":false,\"hostname\":\"\",\"map\":\"\",\"players\":[],\"max_players\":0,\"updated_at\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"}"
+
+            echo "✗ Server offline (backup)"
+          fi
