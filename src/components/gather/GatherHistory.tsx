@@ -4,6 +4,8 @@ import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Link } from "@/i18n/routing";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import type { Gather } from "@/types/gather";
 
 export function GatherHistory() {
@@ -27,39 +29,26 @@ export function GatherHistory() {
     fetch();
   }, []);
 
-  if (loading) {
-    return <div className="animate-pulse h-20 bg-surface rounded-lg" />;
-  }
-
-  if (gathers.length === 0) {
-    return <p className="text-muted text-sm">{t("noHistory")}</p>;
-  }
+  if (loading) return <div className="animate-pulse h-20 bg-card rounded-lg" />;
+  if (gathers.length === 0) return <p className="text-muted-foreground text-sm">{t("noHistory")}</p>;
 
   return (
     <div className="space-y-2">
       {gathers.map((g) => (
-        <Link
-          key={g.id}
-          href={`/gather/${g.id}` as "/gather"}
-          className="block bg-surface rounded-lg p-4 border border-border hover:border-accent/30 transition-colors"
-        >
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <span
-                className={`text-sm ${
-                  g.status === "completed" ? "text-green-400" : "text-muted"
-                }`}
-              >
-                {t(`status.${g.status}`)}
+        <Link key={g.id} href={`/gather/${g.id}` as "/gather"} className="block">
+          <Card className="hover:border-primary/30 transition-colors">
+            <CardContent className="p-4 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Badge variant={g.status === "completed" ? "default" : "outline"}>
+                  {t(`status.${g.status}`)}
+                </Badge>
+                <span className="text-sm text-muted-foreground">{t(`mode.${g.mode}`)}</span>
+              </div>
+              <span className="text-xs text-muted-foreground">
+                {new Date(g.completed_at || g.created_at).toLocaleDateString()}
               </span>
-              <span className="text-sm text-muted">
-                {t(`mode.${g.mode}`)}
-              </span>
-            </div>
-            <span className="text-xs text-muted">
-              {new Date(g.completed_at || g.created_at).toLocaleDateString()}
-            </span>
-          </div>
+            </CardContent>
+          </Card>
         </Link>
       ))}
     </div>

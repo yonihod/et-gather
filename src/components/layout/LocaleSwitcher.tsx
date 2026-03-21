@@ -2,6 +2,7 @@
 
 import { useLocale } from "next-intl";
 import { useRouter, usePathname } from "@/i18n/routing";
+import { Button } from "@/components/ui/button";
 
 export function LocaleSwitcher() {
   const locale = useLocale();
@@ -14,12 +15,13 @@ export function LocaleSwitcher() {
   }
 
   return (
-    <button
+    <Button
+      variant="ghost"
+      size="sm"
       onClick={toggleLocale}
-      className="px-2 py-1 rounded text-sm text-muted hover:text-foreground hover:bg-surface-hover transition-colors"
       title={locale === "he" ? "Switch to English" : "עבור לעברית"}
     >
       {locale === "he" ? "EN" : "עב"}
-    </button>
+    </Button>
   );
 }

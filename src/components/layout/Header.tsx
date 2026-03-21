@@ -16,10 +16,10 @@ export function Header() {
   ];
 
   return (
-    <header className="border-b border-border bg-surface/80 backdrop-blur-sm sticky top-0 z-50">
+    <header className="border-b bg-card/80 backdrop-blur-sm sticky top-0 z-50">
       <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
         <div className="flex items-center gap-6">
-          <Link href="/" className="text-accent font-bold text-lg tracking-tight">
+          <Link href="/" className="text-primary font-bold text-lg tracking-tight">
             ET Gather
           </Link>
           <nav className="hidden md:flex items-center gap-1">
@@ -29,8 +29,8 @@ export function Header() {
                 href={item.href}
                 className={`px-3 py-1.5 rounded-md text-sm transition-colors ${
                   pathname === item.href
-                    ? "bg-accent/10 text-accent"
-                    : "text-muted hover:text-foreground hover:bg-surface-hover"
+                    ? "bg-primary/10 text-primary"
+                    : "text-muted-foreground hover:text-foreground hover:bg-secondary"
                 }`}
               >
                 {item.label}
@@ -42,7 +42,7 @@ export function Header() {
           <LocaleSwitcher />
           <Link
             href="/auth/login"
-            className="bg-accent text-background px-4 py-1.5 rounded-md text-sm font-medium hover:bg-accent/90 transition-colors"
+            className="inline-flex items-center justify-center h-8 px-3 rounded-lg text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/80 transition-colors"
           >
             {t("login")}
           </Link>

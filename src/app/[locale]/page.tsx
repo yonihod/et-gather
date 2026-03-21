@@ -10,16 +10,16 @@ export default function HomePage() {
     <div className="space-y-8">
       {/* Hero */}
       <section className="text-center py-12 space-y-4">
-        <h1 className="text-4xl md:text-5xl font-bold text-accent">
+        <h1 className="text-4xl md:text-5xl font-bold text-primary">
           {t("home.title")}
         </h1>
-        <p className="text-lg text-muted max-w-md mx-auto">
+        <p className="text-lg text-muted-foreground max-w-md mx-auto">
           {t("home.subtitle")}
         </p>
         <div className="flex justify-center gap-3 pt-4">
           <Link
             href="/gather"
-            className="bg-accent text-background px-6 py-2.5 rounded-lg font-medium hover:bg-accent/90 transition-colors"
+            className="inline-flex items-center justify-center h-9 px-4 rounded-lg text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/80 transition-colors"
           >
             {t("home.createGather")}
           </Link>

@@ -4,6 +4,8 @@ import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Link } from "@/i18n/routing";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import type { GatherWithParticipants } from "@/types/gather";
 
 export function ActiveGatherCard() {
@@ -12,6 +14,7 @@ export function ActiveGatherCard() {
   const [loading, setLoading] = useState(true);
   const supabase = createClient();
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     async function fetchActiveGather() {
       const { data } = await supabase
@@ -28,7 +31,6 @@ export function ActiveGatherCard() {
 
     fetchActiveGather();
 
-    // Subscribe to realtime changes
     const channel = supabase
       .channel("active-gather")
       .on(
@@ -49,70 +51,66 @@ export function ActiveGatherCard() {
   }, []);
 
   if (loading) {
-    return (
-      <div className="bg-surface rounded-lg p-6 border border-border animate-pulse">
-        <div className="h-6 bg-surface-hover rounded w-1/3" />
-      </div>
-    );
+    return <Card className="animate-pulse"><CardContent className="p-6"><div className="h-6 bg-secondary rounded w-1/3" /></CardContent></Card>;
   }
 
   if (!gather) {
     return (
-      <div className="bg-surface rounded-lg p-6 border border-border text-center">
-        <p className="text-muted">{t("home.noActiveGather")}</p>
-        <Link
-          href="/gather"
-          className="inline-block mt-3 bg-accent text-background px-4 py-2 rounded-md text-sm font-medium hover:bg-accent/90 transition-colors"
-        >
-          {t("home.createGather")}
-        </Link>
-      </div>
+      <Card>
+        <CardContent className="p-6 text-center">
+          <p className="text-muted-foreground">{t("home.noActiveGather")}</p>
+          <Link
+            href="/gather"
+            className="inline-flex items-center justify-center mt-3 h-7 px-3 rounded-lg text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/80 transition-colors"
+          >
+            {t("home.createGather")}
+          </Link>
+        </CardContent>
+      </Card>
     );
   }
 
   const participantCount = gather.participants?.length ?? 0;
-  const statusColor = {
-    open: "text-green-400",
-    ready: "text-yellow-400",
-    live: "text-red-400",
-    completed: "text-muted",
-    cancelled: "text-muted",
+  const statusVariant = {
+    open: "default" as const,
+    ready: "secondary" as const,
+    live: "destructive" as const,
+    completed: "outline" as const,
+    cancelled: "outline" as const,
   }[gather.status];
 
   return (
-    <Link
-      href={`/gather/${gather.id}` as "/gather"}
-      className="block bg-surface rounded-lg p-6 border border-border hover:border-accent/30 transition-colors"
-    >
-      <div className="flex items-center justify-between">
-        <div>
-          <span className={`text-sm font-medium ${statusColor}`}>
-            {t(`gather.status.${gather.status}`)}
-          </span>
-          <span className="text-muted mx-2">·</span>
-          <span className="text-sm text-muted">
-            {t(`gather.mode.${gather.mode}`)}
-          </span>
-        </div>
-        <div className="text-sm">
-          <span className="text-foreground font-semibold">
-            {participantCount}
-          </span>
-          <span className="text-muted">/{gather.max_players}</span>
-        </div>
-      </div>
+    <Link href={`/gather/${gather.id}` as "/gather"} className="block">
+      <Card className="hover:border-primary/30 transition-colors">
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Badge variant={statusVariant}>
+                {t(`gather.status.${gather.status}`)}
+              </Badge>
+              <span className="text-sm text-muted-foreground">
+                {t(`gather.mode.${gather.mode}`)}
+              </span>
+            </div>
+            <div className="text-sm">
+              <span className="font-semibold">{participantCount}</span>
+              <span className="text-muted-foreground">/{gather.max_players}</span>
+            </div>
+          </div>
 
-      {/* Player slots visualization */}
-      <div className="flex gap-1.5 mt-4">
-        {Array.from({ length: gather.max_players }).map((_, i) => (
-          <div
-            key={i}
-            className={`h-2 flex-1 rounded-full ${
-              i < participantCount ? "bg-accent" : "bg-surface-hover"
-            }`}
-          />
-        ))}
-      </div>
+          {/* Progress bar */}
+          <div className="flex gap-1.5 mt-4">
+            {Array.from({ length: gather.max_players }).map((_, i) => (
+              <div
+                key={i}
+                className={`h-2 flex-1 rounded-full ${
+                  i < participantCount ? "bg-primary" : "bg-secondary"
+                }`}
+              />
+            ))}
+          </div>
+        </CardContent>
+      </Card>
     </Link>
   );
 }

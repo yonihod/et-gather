@@ -3,6 +3,9 @@
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import type { GatherWithParticipants, GatherMode } from "@/types/gather";
 
 export function GatherQueue() {
@@ -31,123 +34,80 @@ export function GatherQueue() {
     setLoading(false);
   }
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     fetchData();
 
     const channel = supabase
       .channel("gather-queue")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "gathers" },
-        () => fetchData()
-      )
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "gather_participants" },
-        () => fetchData()
-      )
+      .on("postgres_changes", { event: "*", schema: "public", table: "gathers" }, () => fetchData())
+      .on("postgres_changes", { event: "*", schema: "public", table: "gather_participants" }, () => fetchData())
       .subscribe();
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    return () => { supabase.removeChannel(channel); };
   }, []);
 
   async function createGather(mode: GatherMode) {
     if (!userId) return;
     setActionLoading(true);
-
-    const { error } = await supabase.from("gathers").insert({
-      mode,
-      created_by: userId,
-      status: "open",
-    });
-
-    if (!error) await fetchData();
+    await supabase.from("gathers").insert({ mode, created_by: userId, status: "open" });
+    await fetchData();
     setActionLoading(false);
   }
 
   async function joinGather() {
     if (!userId || !gather) return;
     setActionLoading(true);
-
-    const { error } = await supabase.from("gather_participants").insert({
-      gather_id: gather.id,
-      user_id: userId,
-    });
-
-    if (!error) await fetchData();
+    await supabase.from("gather_participants").insert({ gather_id: gather.id, user_id: userId });
+    await fetchData();
     setActionLoading(false);
   }
 
   async function leaveGather() {
     if (!userId || !gather) return;
     setActionLoading(true);
-
-    const { error } = await supabase
-      .from("gather_participants")
-      .delete()
-      .eq("gather_id", gather.id)
-      .eq("user_id", userId);
-
-    if (!error) await fetchData();
+    await supabase.from("gather_participants").delete().eq("gather_id", gather.id).eq("user_id", userId);
+    await fetchData();
     setActionLoading(false);
   }
 
   async function updateGatherStatus(status: string) {
     if (!gather) return;
     setActionLoading(true);
-
     const updates: Record<string, unknown> = { status };
     if (status === "live") updates.live_at = new Date().toISOString();
-    if (status === "completed")
-      updates.completed_at = new Date().toISOString();
-    if (status === "cancelled")
-      updates.cancelled_at = new Date().toISOString();
-
+    if (status === "completed") updates.completed_at = new Date().toISOString();
+    if (status === "cancelled") updates.cancelled_at = new Date().toISOString();
     await supabase.from("gathers").update(updates).eq("id", gather.id);
     await fetchData();
     setActionLoading(false);
   }
 
   if (loading) {
-    return (
-      <div className="bg-surface rounded-lg p-8 border border-border animate-pulse">
-        <div className="h-8 bg-surface-hover rounded w-1/3 mx-auto" />
-      </div>
-    );
+    return <Card className="animate-pulse"><CardContent className="p-8"><div className="h-8 bg-secondary rounded w-1/3 mx-auto" /></CardContent></Card>;
   }
 
-  // No active gather — show create buttons
   if (!gather) {
     if (!userId) {
       return (
-        <div className="bg-surface rounded-lg p-8 border border-border text-center">
-          <p className="text-muted">{t("mustLogin")}</p>
-        </div>
+        <Card><CardContent className="p-8 text-center"><p className="text-muted-foreground">{t("mustLogin")}</p></CardContent></Card>
       );
     }
 
     return (
-      <div className="bg-surface rounded-lg p-8 border border-border text-center space-y-4">
-        <p className="text-muted">No active gather</p>
-        <div className="flex justify-center gap-3">
-          <button
-            onClick={() => createGather("5v5")}
-            disabled={actionLoading}
-            className="bg-accent text-background px-6 py-2.5 rounded-lg font-medium hover:bg-accent/90 transition-colors disabled:opacity-50"
-          >
-            {t("create")} — {t("mode.5v5")}
-          </button>
-          <button
-            onClick={() => createGather("6v6")}
-            disabled={actionLoading}
-            className="bg-accent text-background px-6 py-2.5 rounded-lg font-medium hover:bg-accent/90 transition-colors disabled:opacity-50"
-          >
-            {t("create")} — {t("mode.6v6")}
-          </button>
-        </div>
-      </div>
+      <Card>
+        <CardContent className="p-8 text-center space-y-4">
+          <p className="text-muted-foreground">No active gather</p>
+          <div className="flex justify-center gap-3">
+            <Button onClick={() => createGather("5v5")} disabled={actionLoading}>
+              {t("create")} — {t("mode.5v5")}
+            </Button>
+            <Button onClick={() => createGather("6v6")} disabled={actionLoading} variant="secondary">
+              {t("create")} — {t("mode.6v6")}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     );
   }
 
@@ -162,154 +122,91 @@ export function GatherQueue() {
   const unassigned = participants.filter((p) => p.team === null);
 
   return (
-    <div className="bg-surface rounded-lg border border-border overflow-hidden">
-      {/* Header */}
-      <div className="px-6 py-4 border-b border-border flex items-center justify-between">
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between pb-4">
         <div className="flex items-center gap-3">
           <span
             className={`inline-block w-2.5 h-2.5 rounded-full ${
-              gather.status === "open"
-                ? "bg-green-400 animate-pulse"
-                : gather.status === "ready"
-                ? "bg-yellow-400"
-                : gather.status === "live"
-                ? "bg-red-400 animate-pulse"
-                : "bg-muted"
+              gather.status === "open" ? "bg-green-500 animate-pulse"
+              : gather.status === "ready" ? "bg-yellow-500"
+              : gather.status === "live" ? "bg-red-500 animate-pulse"
+              : "bg-muted-foreground"
             }`}
           />
-          <span className="font-semibold">{t(`status.${gather.status}`)}</span>
-          <span className="text-muted text-sm">{t(`mode.${gather.mode}`)}</span>
+          <CardTitle className="text-base">{t(`status.${gather.status}`)}</CardTitle>
+          <Badge variant="outline">{t(`mode.${gather.mode}`)}</Badge>
         </div>
         <span className="text-sm">
-          <span className="text-foreground font-semibold">
-            {participants.length}
-          </span>
-          <span className="text-muted">/{gather.max_players}</span>
+          <span className="font-semibold">{participants.length}</span>
+          <span className="text-muted-foreground">/{gather.max_players}</span>
         </span>
-      </div>
+      </CardHeader>
 
-      {/* Player slots */}
-      <div className="p-6">
+      <CardContent>
+        {/* Player slots */}
         {gather.status === "open" || (gather.status === "ready" && team1.length === 0) ? (
-          // Show queue grid
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-3">
             {Array.from({ length: gather.max_players }).map((_, i) => {
               const participant = unassigned[i] || participants[i];
               return (
                 <div
                   key={i}
-                  className={`rounded-lg p-3 text-center text-sm ${
+                  className={`rounded-lg p-3 text-center text-sm border ${
                     participant
-                      ? "bg-accent/10 border border-accent/20 text-foreground"
-                      : "bg-surface-hover border border-border text-muted"
+                      ? "bg-primary/5 border-primary/20 text-foreground"
+                      : "bg-secondary border-transparent text-muted-foreground"
                   }`}
                 >
-                  {participant?.profile?.display_name ||
-                    participant?.profile?.et_nickname ||
-                    `Slot ${i + 1}`}
+                  {participant?.profile?.display_name || participant?.profile?.et_nickname || `Slot ${i + 1}`}
                 </div>
               );
             })}
           </div>
         ) : (
-          // Show teams
           <div className="grid grid-cols-2 gap-6">
             <div>
-              <h3 className="font-semibold text-center mb-3">{t("team1")}</h3>
+              <h3 className="font-semibold text-center mb-3 text-blue-400">{t("team1")}</h3>
               <div className="space-y-2">
-                {Array.from({ length: halfSize }).map((_, i) => {
-                  const p = team1[i];
-                  return (
-                    <div
-                      key={i}
-                      className={`rounded-lg p-3 text-center text-sm ${
-                        p
-                          ? "bg-blue-500/10 border border-blue-500/20"
-                          : "bg-surface-hover border border-border text-muted"
-                      }`}
-                    >
-                      {p?.profile?.display_name || `Slot ${i + 1}`}
-                    </div>
-                  );
-                })}
+                {Array.from({ length: halfSize }).map((_, i) => (
+                  <div key={i} className={`rounded-lg p-3 text-center text-sm ${team1[i] ? "bg-blue-500/10 border border-blue-500/20" : "bg-secondary text-muted-foreground"}`}>
+                    {team1[i]?.profile?.display_name || `Slot ${i + 1}`}
+                  </div>
+                ))}
               </div>
             </div>
             <div>
-              <h3 className="font-semibold text-center mb-3">{t("team2")}</h3>
+              <h3 className="font-semibold text-center mb-3 text-red-400">{t("team2")}</h3>
               <div className="space-y-2">
-                {Array.from({ length: halfSize }).map((_, i) => {
-                  const p = team2[i];
-                  return (
-                    <div
-                      key={i}
-                      className={`rounded-lg p-3 text-center text-sm ${
-                        p
-                          ? "bg-red-500/10 border border-red-500/20"
-                          : "bg-surface-hover border border-border text-muted"
-                      }`}
-                    >
-                      {p?.profile?.display_name || `Slot ${i + 1}`}
-                    </div>
-                  );
-                })}
+                {Array.from({ length: halfSize }).map((_, i) => (
+                  <div key={i} className={`rounded-lg p-3 text-center text-sm ${team2[i] ? "bg-red-500/10 border border-red-500/20" : "bg-secondary text-muted-foreground"}`}>
+                    {team2[i]?.profile?.display_name || `Slot ${i + 1}`}
+                  </div>
+                ))}
               </div>
             </div>
           </div>
         )}
-      </div>
 
-      {/* Actions */}
-      <div className="px-6 py-4 border-t border-border flex justify-center gap-3">
-        {userId && gather.status === "open" && !isInGather && !isFull && (
-          <button
-            onClick={joinGather}
-            disabled={actionLoading}
-            className="bg-accent text-background px-6 py-2 rounded-lg text-sm font-medium hover:bg-accent/90 transition-colors disabled:opacity-50"
-          >
-            {t("join")}
-          </button>
-        )}
-        {userId && gather.status === "open" && isInGather && (
-          <button
-            onClick={leaveGather}
-            disabled={actionLoading}
-            className="bg-red-500/10 text-red-400 px-6 py-2 rounded-lg text-sm font-medium hover:bg-red-500/20 transition-colors disabled:opacity-50"
-          >
-            {t("leave")}
-          </button>
-        )}
-        {isCreator && gather.status === "ready" && (
-          <button
-            onClick={() => updateGatherStatus("live")}
-            disabled={actionLoading}
-            className="bg-accent text-background px-6 py-2 rounded-lg text-sm font-medium hover:bg-accent/90 transition-colors disabled:opacity-50"
-          >
-            {t("start")}
-          </button>
-        )}
-        {isCreator && gather.status === "live" && (
-          <button
-            onClick={() => updateGatherStatus("completed")}
-            disabled={actionLoading}
-            className="bg-accent text-background px-6 py-2 rounded-lg text-sm font-medium hover:bg-accent/90 transition-colors disabled:opacity-50"
-          >
-            {t("complete")}
-          </button>
-        )}
-        {isCreator &&
-          ["open", "ready", "live"].includes(gather.status) && (
-            <button
-              onClick={() => updateGatherStatus("cancelled")}
-              disabled={actionLoading}
-              className="bg-surface-hover text-muted px-6 py-2 rounded-lg text-sm font-medium hover:text-foreground transition-colors disabled:opacity-50"
-            >
-              {t("cancel")}
-            </button>
+        {/* Actions */}
+        <div className="flex justify-center gap-3 mt-6 pt-4 border-t">
+          {userId && gather.status === "open" && !isInGather && !isFull && (
+            <Button onClick={joinGather} disabled={actionLoading}>{t("join")}</Button>
           )}
-        {!userId && (
-          <p className="text-muted text-sm">{t("mustLogin")}</p>
-        )}
-      </div>
-    </div>
+          {userId && gather.status === "open" && isInGather && (
+            <Button onClick={leaveGather} disabled={actionLoading} variant="destructive">{t("leave")}</Button>
+          )}
+          {isCreator && gather.status === "ready" && (
+            <Button onClick={() => updateGatherStatus("live")} disabled={actionLoading}>{t("start")}</Button>
+          )}
+          {isCreator && gather.status === "live" && (
+            <Button onClick={() => updateGatherStatus("completed")} disabled={actionLoading}>{t("complete")}</Button>
+          )}
+          {isCreator && ["open", "ready", "live"].includes(gather.status) && (
+            <Button onClick={() => updateGatherStatus("cancelled")} disabled={actionLoading} variant="ghost">{t("cancel")}</Button>
+          )}
+          {!userId && <p className="text-muted-foreground text-sm">{t("mustLogin")}</p>}
+        </div>
+      </CardContent>
+    </Card>
   );
 }
