@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Link } from "@/i18n/routing";
 import { Badge } from "@/components/ui/badge";
@@ -13,6 +13,7 @@ export function ActiveGatherCard() {
   const [gather, setGather] = useState<GatherWithParticipants | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const prevCountRef = useRef(0);
   const supabase = createClient();
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -59,7 +60,6 @@ export function ActiveGatherCard() {
   }
 
   if (!gather) {
-    // Show mock gather so the page doesn't look empty
     const mockCount = MOCK_GATHER_PARTICIPANTS.length;
     const mockMax = 10;
     return (
@@ -75,10 +75,13 @@ export function ActiveGatherCard() {
           </span>
         </div>
 
-        {/* Player slots — two columns like the game scoreboard */}
         <div className="grid grid-cols-2 gap-x-8 gap-y-1">
-          {MOCK_GATHER_PARTICIPANTS.map((name) => (
-            <div key={name} className="flex items-center gap-2 py-1.5 text-sm border-b border-border/40">
+          {MOCK_GATHER_PARTICIPANTS.map((name, i) => (
+            <div
+              key={name}
+              className="flex items-center gap-2 py-1.5 text-sm border-b border-border/40 animate-slot-pop"
+              style={{ animationDelay: `${i * 60}ms` }}
+            >
               <span className="text-xs">🇮🇱</span>
               <span className="font-medium">{name}</span>
             </div>
@@ -90,14 +93,15 @@ export function ActiveGatherCard() {
           ))}
         </div>
 
-        {/* Progress */}
+        {/* Animated progress */}
         <div className="flex gap-1 mt-5">
           {Array.from({ length: mockMax }).map((_, i) => (
             <div
               key={i}
               className={`h-1.5 flex-1 rounded-sm ${
-                i < mockCount ? "bg-primary" : "bg-border"
+                i < mockCount ? "bg-primary animate-segment-fill" : "bg-border"
               }`}
+              style={i < mockCount ? { animationDelay: `${i * 50 + 200}ms` } : undefined}
             />
           ))}
         </div>
@@ -106,6 +110,9 @@ export function ActiveGatherCard() {
   }
 
   const participantCount = gather.participants?.length ?? 0;
+  const prevCount = prevCountRef.current;
+  prevCountRef.current = participantCount;
+
   const isCreator = gather.created_by === userId;
   const statusVariant = {
     open: "default" as const,
@@ -114,6 +121,8 @@ export function ActiveGatherCard() {
     completed: "outline" as const,
     cancelled: "outline" as const,
   }[gather.status];
+
+  const isLive = gather.status === "live";
 
   async function cancelGather(e: React.MouseEvent) {
     e.preventDefault();
@@ -126,7 +135,13 @@ export function ActiveGatherCard() {
   }
 
   return (
-    <div className="border rounded-md p-6 hover:border-primary/40 transition-colors">
+    <div
+      className={`border rounded-md p-6 transition-all duration-300 ${
+        isLive
+          ? "animate-tactical-pulse border-destructive/40"
+          : "hover:border-primary/40"
+      }`}
+    >
       <div className="flex items-baseline justify-between mb-4">
         <Link href={`/gather/${gather.id}` as "/gather"} className="flex items-center gap-3">
           <Badge variant={statusVariant}>
@@ -153,11 +168,17 @@ export function ActiveGatherCard() {
         </div>
       </div>
 
-      {/* Participants */}
+      {/* Participants — with slot-pop animation for new joins */}
       {participantCount > 0 && (
         <div className="grid grid-cols-2 gap-x-8 gap-y-1 mb-4">
-          {gather.participants?.map((p) => (
-            <div key={p.id} className="flex items-center gap-2 py-1.5 text-sm border-b border-border/40">
+          {gather.participants?.map((p, i) => (
+            <div
+              key={p.id}
+              className={`flex items-center gap-2 py-1.5 text-sm border-b border-border/40 ${
+                i >= prevCount ? "animate-slot-pop" : ""
+              }`}
+              style={i >= prevCount ? { animationDelay: `${(i - prevCount) * 60}ms` } : undefined}
+            >
               <span className="text-xs">🇮🇱</span>
               <span className="font-medium">{p.profile?.display_name || "Player"}</span>
             </div>
@@ -165,14 +186,21 @@ export function ActiveGatherCard() {
         </div>
       )}
 
-      {/* Progress bar */}
+      {/* Animated progress bar */}
       <div className="flex gap-1 mt-2">
         {Array.from({ length: gather.max_players }).map((_, i) => (
           <div
             key={i}
-            className={`h-1.5 flex-1 rounded-sm ${
-              i < participantCount ? "bg-primary" : "bg-border"
-            }`}
+            className={`h-1.5 flex-1 rounded-sm transition-all duration-300 ${
+              i < participantCount
+                ? isLive ? "bg-destructive" : "bg-primary"
+                : "bg-border"
+            } ${i >= prevCount && i < participantCount ? "animate-segment-fill" : ""}`}
+            style={
+              i >= prevCount && i < participantCount
+                ? { animationDelay: `${(i - prevCount) * 50}ms` }
+                : undefined
+            }
           />
         ))}
       </div>

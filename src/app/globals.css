@@ -135,6 +135,105 @@
   .delay-500 { animation-delay: 500ms; }
 }
 
+/* ── Scroll-driven reveals ─────────────────────────────────────────── */
+@keyframes scroll-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.scroll-reveal {
+  animation: scroll-reveal linear both;
+  animation-timeline: view();
+  animation-range: entry 0% entry 25%;
+}
+
+/* Fallback: if scroll-driven animations aren't supported, use a simple
+   IntersectionObserver-driven class toggle (added via JS) or just show. */
+@supports not (animation-timeline: view()) {
+  .scroll-reveal {
+    animation: fade-up 0.7s var(--ease-out-quart) both;
+  }
+  /* Stagger multiple reveals on page */
+  .scroll-reveal:nth-child(2) { animation-delay: 100ms; }
+  .scroll-reveal:nth-child(3) { animation-delay: 200ms; }
+}
+
+/* ── Gather slot entrance ──────────────────────────────────────────── */
+@keyframes slot-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.85) translateY(6px);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.04) translateY(-1px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.animate-slot-pop {
+  animation: slot-pop 0.45s var(--ease-out-quart) both;
+}
+
+/* ── Gather progress segment fill ──────────────────────────────────── */
+@keyframes segment-fill {
+  from {
+    transform: scaleX(0);
+    opacity: 0;
+  }
+  to {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+}
+
+.animate-segment-fill {
+  animation: segment-fill 0.5s var(--ease-out-expo) both;
+  transform-origin: left center;
+}
+
+[dir="rtl"] .animate-segment-fill {
+  transform-origin: right center;
+}
+
+/* ── Tactical "live" pulse border ──────────────────────────────────── */
+@keyframes tactical-pulse {
+  0%, 100% {
+    border-color: oklch(0.60 0.20 25 / 0.4);
+    box-shadow: 0 0 0 0 oklch(0.60 0.20 25 / 0.15);
+  }
+  50% {
+    border-color: oklch(0.60 0.20 25 / 0.7);
+    box-shadow: 0 0 20px 2px oklch(0.60 0.20 25 / 0.08);
+  }
+}
+
+.animate-tactical-pulse {
+  animation: tactical-pulse 2s ease-in-out infinite;
+  border-color: oklch(0.60 0.20 25 / 0.4);
+}
+
+/* ── Status dot heartbeat (for live gathers) ──────────────────────── */
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  15% { transform: scale(1.35); opacity: 1; }
+  30% { transform: scale(1); opacity: 0.8; }
+  45% { transform: scale(1.15); opacity: 1; }
+}
+
+.animate-heartbeat {
+  animation: heartbeat 1.5s ease-in-out infinite;
+}
+
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

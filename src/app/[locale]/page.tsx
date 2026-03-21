@@ -4,6 +4,7 @@ import { Link } from "@/i18n/routing";
 import { LeaderboardTable } from "@/components/leaderboard/LeaderboardTable";
 import { ActiveGatherCard } from "@/components/gather/ActiveGatherCard";
 import { ServerStatus } from "@/components/server/ServerStatus";
+import { RadarCanvas } from "@/components/effects/RadarCanvas";
 
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -62,14 +63,17 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             </div>
           </div>
 
-          {/* Logo */}
-          <div className="hidden md:block animate-slide-right delay-200">
+          {/* Logo with radar behind it */}
+          <div className="hidden md:flex items-center justify-center relative animate-slide-right delay-200">
+            <div className="absolute inset-0 flex items-center justify-center -m-[90px]">
+              <RadarCanvas />
+            </div>
             <Image
               src="/images/logo.png"
               alt="ET Gather Israel"
               width={300}
               height={300}
-              className="opacity-90 drop-shadow-[0_0_40px_oklch(0.65_0.14_145_/_0.1)]"
+              className="relative z-10 opacity-90 drop-shadow-[0_0_40px_oklch(0.65_0.14_145_/_0.1)]"
               priority
             />
           </div>
@@ -77,10 +81,10 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       </section>
 
       {/* Gradient divider */}
-      <div className="h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+      <div className="scroll-reveal h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
 
       {/* Server Status + Active Gather */}
-      <section className="animate-fade-up delay-500">
+      <section className="scroll-reveal">
         <div className="grid md:grid-cols-[1fr_300px] gap-10">
           <div>
             <div className="flex items-baseline gap-3 mb-6">
@@ -96,7 +100,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       </section>
 
       {/* Leaderboard */}
-      <section className="pb-16">
+      <section className="scroll-reveal pb-16">
         <h2 className="font-display text-2xl font-bold tracking-tight mb-8">{t("home.leaderboard")}</h2>
         <LeaderboardTable />
       </section>

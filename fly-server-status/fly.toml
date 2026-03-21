@@ -1,0 +1,13 @@
+app = 'et-server-status'
+primary_region = 'ams'
+
+[build]
+
+# No HTTP services needed — this is a background worker
+[processes]
+  worker = 'sh poll.sh'
+
+
+[[vm]]
+  size = 'shared-cpu-1x'
+  memory = '256mb'

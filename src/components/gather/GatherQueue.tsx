@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,8 @@ export function GatherQueue() {
   const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
+  const prevStatusRef = useRef<string | null>(null);
+  const prevCountRef = useRef(0);
   const supabase = createClient();
 
   async function fetchData() {
@@ -121,15 +123,25 @@ export function GatherQueue() {
   const team2 = participants.filter((p) => p.team === 2);
   const unassigned = participants.filter((p) => p.team === null);
 
+  const isLive = gather.status === "live";
+  const statusChanged = prevStatusRef.current !== null && prevStatusRef.current !== gather.status;
+  const prevCount = prevCountRef.current;
+  prevStatusRef.current = gather.status;
+  prevCountRef.current = participants.length;
+
   return (
-    <Card>
+    <Card
+      className={`transition-all duration-500 ${
+        isLive ? "animate-tactical-pulse border-destructive/40" : ""
+      } ${statusChanged ? "animate-slot-pop" : ""}`}
+    >
       <CardHeader className="flex flex-row items-center justify-between pb-4">
         <div className="flex items-center gap-3">
           <span
             className={`inline-block w-2.5 h-2.5 rounded-full ${
               gather.status === "open" ? "bg-green-500 animate-pulse"
               : gather.status === "ready" ? "bg-yellow-500"
-              : gather.status === "live" ? "bg-red-500 animate-pulse"
+              : gather.status === "live" ? "bg-red-500 animate-heartbeat"
               : "bg-muted-foreground"
             }`}
           />
@@ -148,14 +160,16 @@ export function GatherQueue() {
           <div className="grid grid-cols-2 gap-3">
             {Array.from({ length: gather.max_players }).map((_, i) => {
               const participant = unassigned[i] || participants[i];
+              const isNew = participant && i >= prevCount;
               return (
                 <div
                   key={i}
-                  className={`rounded-lg p-3 text-center text-sm border ${
+                  className={`rounded-lg p-3 text-center text-sm border transition-all duration-300 ${
                     participant
                       ? "bg-primary/5 border-primary/20 text-foreground"
                       : "bg-secondary border-transparent text-muted-foreground"
-                  }`}
+                  } ${isNew ? "animate-slot-pop" : ""}`}
+                  style={isNew ? { animationDelay: `${(i - prevCount) * 60}ms` } : undefined}
                 >
                   {participant?.profile?.display_name || participant?.profile?.et_nickname || `Slot ${i + 1}`}
                 </div>
@@ -168,7 +182,15 @@ export function GatherQueue() {
               <h3 className="font-semibold text-center mb-3 text-blue-400">{t("team1")}</h3>
               <div className="space-y-2">
                 {Array.from({ length: halfSize }).map((_, i) => (
-                  <div key={i} className={`rounded-lg p-3 text-center text-sm ${team1[i] ? "bg-blue-500/10 border border-blue-500/20" : "bg-secondary text-muted-foreground"}`}>
+                  <div
+                    key={i}
+                    className={`rounded-lg p-3 text-center text-sm transition-all duration-300 ${
+                      team1[i]
+                        ? "bg-blue-500/10 border border-blue-500/20 animate-slot-pop"
+                        : "bg-secondary text-muted-foreground"
+                    }`}
+                    style={team1[i] ? { animationDelay: `${i * 80}ms` } : undefined}
+                  >
                     {team1[i]?.profile?.display_name || `Slot ${i + 1}`}
                   </div>
                 ))}
@@ -178,7 +200,15 @@ export function GatherQueue() {
               <h3 className="font-semibold text-center mb-3 text-red-400">{t("team2")}</h3>
               <div className="space-y-2">
                 {Array.from({ length: halfSize }).map((_, i) => (
-                  <div key={i} className={`rounded-lg p-3 text-center text-sm ${team2[i] ? "bg-red-500/10 border border-red-500/20" : "bg-secondary text-muted-foreground"}`}>
+                  <div
+                    key={i}
+                    className={`rounded-lg p-3 text-center text-sm transition-all duration-300 ${
+                      team2[i]
+                        ? "bg-red-500/10 border border-red-500/20 animate-slot-pop"
+                        : "bg-secondary text-muted-foreground"
+                    }`}
+                    style={team2[i] ? { animationDelay: `${i * 80 + 200}ms` } : undefined}
+                  >
                     {team2[i]?.profile?.display_name || `Slot ${i + 1}`}
                   </div>
                 ))}
@@ -186,6 +216,25 @@ export function GatherQueue() {
             </div>
           </div>
         )}
+
+        {/* Animated progress bar */}
+        <div className="flex gap-1 mt-6">
+          {Array.from({ length: gather.max_players }).map((_, i) => (
+            <div
+              key={i}
+              className={`h-1.5 flex-1 rounded-sm transition-all duration-300 ${
+                i < participants.length
+                  ? isLive ? "bg-destructive" : "bg-primary"
+                  : "bg-border"
+              } ${i >= prevCount && i < participants.length ? "animate-segment-fill" : ""}`}
+              style={
+                i >= prevCount && i < participants.length
+                  ? { animationDelay: `${(i - prevCount) * 50}ms` }
+                  : undefined
+              }
+            />
+          ))}
+        </div>
 
         {/* Actions */}
         <div className="flex justify-center gap-3 mt-6 pt-4 border-t">
