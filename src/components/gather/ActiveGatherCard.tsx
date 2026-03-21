@@ -13,52 +13,71 @@ export function ActiveGatherCard() {
   const [gather, setGather] = useState<GatherWithParticipants | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState(false);
   const prevCountRef = useRef(0);
   const supabase = createClient();
 
+  async function fetchActiveGather() {
+    const { data: { user } } = await supabase.auth.getUser();
+    setUserId(user?.id ?? null);
+
+    const { data } = await supabase
+      .from("gathers")
+      .select("*, participants:gather_participants(*, profile:profiles(*))")
+      .in("status", ["open", "ready", "live"])
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .single();
+
+    setGather(data as GatherWithParticipants | null);
+    setLoading(false);
+  }
+
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
-    async function fetchActiveGather() {
-      const { data: { user } } = await supabase.auth.getUser();
-      setUserId(user?.id ?? null);
-
-      const { data } = await supabase
-        .from("gathers")
-        .select("*, participants:gather_participants(*, profile:profiles(*))")
-        .in("status", ["open", "ready", "live"])
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .single();
-
-      setGather(data as GatherWithParticipants | null);
-      setLoading(false);
-    }
-
     fetchActiveGather();
 
     const channel = supabase
       .channel("active-gather")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "gathers" },
-        () => fetchActiveGather()
-      )
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "gather_participants" },
-        () => fetchActiveGather()
-      )
+      .on("postgres_changes", { event: "*", schema: "public", table: "gathers" }, () => fetchActiveGather())
+      .on("postgres_changes", { event: "*", schema: "public", table: "gather_participants" }, () => fetchActiveGather())
       .subscribe();
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    return () => { supabase.removeChannel(channel); };
   }, []);
+
+  async function joinGather() {
+    if (!userId || !gather) return;
+    setActionLoading(true);
+    await supabase.from("gather_participants").insert({ gather_id: gather.id, user_id: userId });
+    await fetchActiveGather();
+    setActionLoading(false);
+  }
+
+  async function leaveGather() {
+    if (!userId || !gather) return;
+    setActionLoading(true);
+    await supabase.from("gather_participants").delete().eq("gather_id", gather.id).eq("user_id", userId);
+    await fetchActiveGather();
+    setActionLoading(false);
+  }
+
+  async function cancelGather(e: React.MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!gather) return;
+    await supabase
+      .from("gathers")
+      .update({ status: "cancelled", cancelled_at: new Date().toISOString() })
+      .eq("id", gather.id);
+    setGather(null);
+  }
 
   if (loading) {
     return <div className="animate-pulse border rounded-md p-6"><div className="h-6 bg-secondary rounded w-1/3" /></div>;
   }
 
+  // Mock gather (no real gather active)
   if (!gather) {
     const mockCount = MOCK_GATHER_PARTICIPANTS.length;
     const mockMax = 10;
@@ -74,46 +93,39 @@ export function ActiveGatherCard() {
             <span className="text-muted-foreground">/{mockMax}</span>
           </span>
         </div>
-
         <div className="grid grid-cols-2 gap-x-8 gap-y-1">
           {MOCK_GATHER_PARTICIPANTS.map((name, i) => (
-            <div
-              key={name}
-              className="flex items-center gap-2 py-1.5 text-sm border-b border-border/40 animate-slot-pop"
-              style={{ animationDelay: `${i * 60}ms` }}
-            >
+            <div key={name} className="flex items-center gap-2 py-1.5 text-sm border-b border-border/40 animate-slot-pop" style={{ animationDelay: `${i * 60}ms` }}>
               <span className="text-xs">🇮🇱</span>
               <span className="font-medium">{name}</span>
             </div>
           ))}
           {Array.from({ length: mockMax - mockCount }).map((_, i) => (
-            <div key={`empty-${i}`} className="py-1.5 text-sm text-muted-foreground/40 border-b border-border/20">
-              empty slot
+            <div key={`empty-${i}`} className="py-1.5 text-sm text-primary/40 border-b border-border/20 italic">
+              + {t("gather.join")}
             </div>
           ))}
         </div>
-
-        {/* Animated progress */}
         <div className="flex gap-1 mt-5">
           {Array.from({ length: mockMax }).map((_, i) => (
-            <div
-              key={i}
-              className={`h-1.5 flex-1 rounded-sm ${
-                i < mockCount ? "bg-primary animate-segment-fill" : "bg-border"
-              }`}
-              style={i < mockCount ? { animationDelay: `${i * 50 + 200}ms` } : undefined}
-            />
+            <div key={i} className={`h-1.5 flex-1 rounded-sm ${i < mockCount ? "bg-primary animate-segment-fill" : "bg-border"}`} style={i < mockCount ? { animationDelay: `${i * 50 + 200}ms` } : undefined} />
           ))}
         </div>
       </Link>
     );
   }
 
-  const participantCount = gather.participants?.length ?? 0;
+  // Real gather
+  const participants = gather.participants ?? [];
+  const participantCount = participants.length;
   const prevCount = prevCountRef.current;
   prevCountRef.current = participantCount;
 
   const isCreator = gather.created_by === userId;
+  const isInGather = participants.some((p) => p.user_id === userId);
+  const isFull = participantCount >= gather.max_players;
+  const isLive = gather.status === "live";
+
   const statusVariant = {
     open: "default" as const,
     ready: "secondary" as const,
@@ -122,34 +134,17 @@ export function ActiveGatherCard() {
     cancelled: "outline" as const,
   }[gather.status];
 
-  const isLive = gather.status === "live";
-
-  async function cancelGather(e: React.MouseEvent) {
-    e.preventDefault();
-    e.stopPropagation();
-    await supabase
-      .from("gathers")
-      .update({ status: "cancelled", cancelled_at: new Date().toISOString() })
-      .eq("id", gather!.id);
-    setGather(null);
-  }
-
   return (
     <div
       className={`border rounded-md p-6 transition-all duration-300 ${
-        isLive
-          ? "animate-tactical-pulse border-destructive/40"
-          : "hover:border-primary/40"
+        isLive ? "animate-tactical-pulse border-destructive/40" : "hover:border-primary/40"
       }`}
     >
+      {/* Header */}
       <div className="flex items-baseline justify-between mb-4">
         <Link href={`/gather/${gather.id}` as "/gather"} className="flex items-center gap-3">
-          <Badge variant={statusVariant}>
-            {t(`gather.status.${gather.status}`)}
-          </Badge>
-          <span className="text-sm text-muted-foreground">
-            {t(`gather.mode.${gather.mode}`)}
-          </span>
+          <Badge variant={statusVariant}>{t(`gather.status.${gather.status}`)}</Badge>
+          <span className="text-sm text-muted-foreground">{t(`gather.mode.${gather.mode}`)}</span>
         </Link>
         <div className="flex items-center gap-3">
           <span className="text-sm tabular-nums">
@@ -157,36 +152,60 @@ export function ActiveGatherCard() {
             <span className="text-muted-foreground">/{gather.max_players}</span>
           </span>
           {isCreator && ["open", "ready", "live"].includes(gather.status) && (
-            <button
-              onClick={cancelGather}
-              className="text-xs text-muted-foreground hover:text-destructive transition-colors"
-              title={t("cancel")}
-            >
-              {t("cancel")}
+            <button onClick={cancelGather} className="text-xs text-muted-foreground hover:text-destructive transition-colors">
+              {t("gather.cancel")}
             </button>
           )}
         </div>
       </div>
 
-      {/* Participants — with slot-pop animation for new joins */}
-      {participantCount > 0 && (
-        <div className="grid grid-cols-2 gap-x-8 gap-y-1 mb-4">
-          {gather.participants?.map((p, i) => (
-            <div
-              key={p.id}
-              className={`flex items-center gap-2 py-1.5 text-sm border-b border-border/40 ${
-                i >= prevCount ? "animate-slot-pop" : ""
-              }`}
-              style={i >= prevCount ? { animationDelay: `${(i - prevCount) * 60}ms` } : undefined}
-            >
+      {/* Player slots */}
+      <div className="grid grid-cols-2 gap-x-8 gap-y-1 mb-4">
+        {participants.map((p, i) => (
+          <div
+            key={p.id}
+            className={`flex items-center justify-between py-1.5 text-sm border-b border-border/40 ${
+              i >= prevCount ? "animate-slot-pop" : ""
+            }`}
+            style={i >= prevCount ? { animationDelay: `${(i - prevCount) * 60}ms` } : undefined}
+          >
+            <div className="flex items-center gap-2">
               <span className="text-xs">🇮🇱</span>
               <span className="font-medium">{p.profile?.display_name || "Player"}</span>
             </div>
-          ))}
-        </div>
-      )}
+            {p.user_id === userId && gather.status === "open" && (
+              <button
+                onClick={leaveGather}
+                disabled={actionLoading}
+                className="text-xs text-muted-foreground hover:text-destructive transition-colors disabled:opacity-50"
+              >
+                {t("gather.leave")}
+              </button>
+            )}
+          </div>
+        ))}
 
-      {/* Animated progress bar */}
+        {/* Empty slots — show join button if logged in and not already in */}
+        {Array.from({ length: gather.max_players - participantCount }).map((_, i) => (
+          <div key={`slot-${i}`} className="py-1.5 text-sm border-b border-border/20">
+            {userId && !isInGather && !isFull && gather.status === "open" && i === 0 ? (
+              <button
+                onClick={joinGather}
+                disabled={actionLoading}
+                className="text-primary hover:text-primary/80 transition-colors font-medium disabled:opacity-50"
+              >
+                + {t("gather.join")}
+              </button>
+            ) : (
+              <span className="text-muted-foreground/30 italic">
+                {!userId ? t("gather.mustLogin") : `slot ${participantCount + i + 1}`}
+              </span>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* Progress bar */}
       <div className="flex gap-1 mt-2">
         {Array.from({ length: gather.max_players }).map((_, i) => (
           <div
@@ -196,11 +215,7 @@ export function ActiveGatherCard() {
                 ? isLive ? "bg-destructive" : "bg-primary"
                 : "bg-border"
             } ${i >= prevCount && i < participantCount ? "animate-segment-fill" : ""}`}
-            style={
-              i >= prevCount && i < participantCount
-                ? { animationDelay: `${(i - prevCount) * 50}ms` }
-                : undefined
-            }
+            style={i >= prevCount && i < participantCount ? { animationDelay: `${(i - prevCount) * 50}ms` } : undefined}
           />
         ))}
       </div>

@@ -53,7 +53,7 @@ export function ServerStatus() {
     return (
       <div className="border rounded-md p-4">
         <div className="flex items-center gap-2 mb-1">
-          <span className="w-2 h-2 rounded-full bg-muted-foreground" />
+          <span className="w-2 h-2 rounded-full bg-red-500" />
           <span className="text-sm font-medium">{t("title")}</span>
         </div>
         <p className="text-xs text-muted-foreground">{t("offline")}</p>
@@ -67,7 +67,7 @@ export function ServerStatus() {
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+          <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
           <span className="text-sm font-semibold text-primary">{t("title")}</span>
         </div>
         <span className="text-xs tabular-nums font-medium text-accent">
