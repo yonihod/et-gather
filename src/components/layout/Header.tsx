@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/routing";
 import { LocaleSwitcher } from "./LocaleSwitcher";
@@ -19,8 +20,9 @@ export function Header() {
     <header className="border-b bg-card/80 backdrop-blur-sm sticky top-0 z-50">
       <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
         <div className="flex items-center gap-6">
-          <Link href="/" className="text-primary font-bold text-lg tracking-tight">
-            ET Gather
+          <Link href="/" className="flex items-center gap-2">
+            <Image src="/images/logo.png" alt="ET Gather" width={36} height={36} className="rounded" />
+            <span className="text-primary font-bold text-lg tracking-tight">ET Gather</span>
           </Link>
           <nav className="hidden md:flex items-center gap-1">
             {navItems.map((item) => (

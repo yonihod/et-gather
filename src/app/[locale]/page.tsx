@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { LeaderboardTable } from "@/components/leaderboard/LeaderboardTable";
@@ -10,6 +11,14 @@ export default function HomePage() {
     <div className="space-y-8">
       {/* Hero */}
       <section className="text-center py-12 space-y-4">
+        <Image
+          src="/images/logo.png"
+          alt="ET Gather Israel"
+          width={180}
+          height={180}
+          className="mx-auto"
+          priority
+        />
         <h1 className="text-4xl md:text-5xl font-bold text-primary">
           {t("home.title")}
         </h1>
