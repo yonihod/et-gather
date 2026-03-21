@@ -15,7 +15,11 @@
     "activeGather": "Active Gather",
     "noActiveGather": "No active gather right now",
     "createGather": "Create New Gather",
-    "leaderboard": "Leaderboard"
+    "joinCommunity": "Join Community",
+    "leaderboard": "Leaderboard",
+    "statsPlayers": "Players",
+    "statsMode": "Competitive",
+    "statsRegion": "Israel"
   },
   "gather": {
     "title": "Gather",

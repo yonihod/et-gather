@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "skills": {
+    "game-ui-design": {
+      "source": "omer-metin/skills-for-antigravity",
+      "sourceType": "github",
+      "computedHash": "cff8acaf58f3f4255f76fb962775fb1a2fec1fce49a54a50bde2c1efd5eb33ec"
+    },
+    "ui-ux-designer": {
+      "source": "lotosbin/claude-skills",
+      "sourceType": "github",
+      "computedHash": "42c6f46cc45913d21f55b7c1814bde21b90103cadf7f2f6f80bc001efffa7c86"
+    }
+  }
+}

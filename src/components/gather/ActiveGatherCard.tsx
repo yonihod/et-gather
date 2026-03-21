@@ -7,6 +7,7 @@ import { Link } from "@/i18n/routing";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import type { GatherWithParticipants } from "@/types/gather";
+import { MOCK_GATHER_PARTICIPANTS } from "@/lib/mock-data";
 
 export function ActiveGatherCard() {
   const t = useTranslations();
@@ -55,18 +56,56 @@ export function ActiveGatherCard() {
   }
 
   if (!gather) {
+    // Show mock gather so the page doesn't look empty
+    const mockCount = MOCK_GATHER_PARTICIPANTS.length;
+    const mockMax = 10;
     return (
-      <Card>
-        <CardContent className="p-6 text-center">
-          <p className="text-muted-foreground">{t("home.noActiveGather")}</p>
-          <Link
-            href="/gather"
-            className="inline-flex items-center justify-center mt-3 h-7 px-3 rounded-lg text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/80 transition-colors"
-          >
-            {t("home.createGather")}
-          </Link>
-        </CardContent>
-      </Card>
+      <Link href="/gather" className="block">
+        <Card className="hover:border-primary/30 transition-colors">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Badge variant="default">
+                  {t("gather.status.open")}
+                </Badge>
+                <span className="text-sm text-muted-foreground">
+                  {t("gather.mode.5v5")}
+                </span>
+              </div>
+              <div className="text-sm">
+                <span className="font-semibold">{mockCount}</span>
+                <span className="text-muted-foreground">/{mockMax}</span>
+              </div>
+            </div>
+
+            {/* Player names */}
+            <div className="flex flex-wrap gap-2 mt-4">
+              {MOCK_GATHER_PARTICIPANTS.map((name) => (
+                <span key={name} className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-md">
+                  {name}
+                </span>
+              ))}
+              {Array.from({ length: mockMax - mockCount }).map((_, i) => (
+                <span key={`empty-${i}`} className="text-xs bg-secondary text-muted-foreground px-2 py-1 rounded-md">
+                  ...
+                </span>
+              ))}
+            </div>
+
+            {/* Progress bar */}
+            <div className="flex gap-1.5 mt-4">
+              {Array.from({ length: mockMax }).map((_, i) => (
+                <div
+                  key={i}
+                  className={`h-2 flex-1 rounded-full ${
+                    i < mockCount ? "bg-primary" : "bg-secondary"
+                  }`}
+                />
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </Link>
     );
   }
 

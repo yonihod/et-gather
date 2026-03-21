@@ -15,7 +15,11 @@
     "activeGather": "גאת׳ר פעיל",
     "noActiveGather": "אין גאת׳ר פעיל כרגע",
     "createGather": "צור גאת׳ר חדש",
-    "leaderboard": "טבלת מובילים"
+    "joinCommunity": "הצטרף לקהילה",
+    "leaderboard": "טבלת מובילים",
+    "statsPlayers": "שחקנים",
+    "statsMode": "משחק תחרותי",
+    "statsRegion": "ישראל"
   },
   "gather": {
     "title": "גאת׳ר",

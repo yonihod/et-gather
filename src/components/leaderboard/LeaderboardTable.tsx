@@ -9,6 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import type { AttendanceStats } from "@/types/gather";
+import { MOCK_LEADERBOARD } from "@/lib/mock-data";
 
 type Period = "allTime" | "last30" | "last7";
 
@@ -29,7 +30,7 @@ export function LeaderboardTable() {
           .select("*")
           .order("attendance_points", { ascending: false })
           .limit(20);
-        setStats((data as AttendanceStats[]) ?? []);
+        setStats((data as AttendanceStats[])?.length ? (data as AttendanceStats[]) : MOCK_LEADERBOARD);
       } else {
         const days = period === "last30" ? 30 : 7;
         const since = new Date();
@@ -37,7 +38,7 @@ export function LeaderboardTable() {
         const { data } = await supabase.rpc("get_leaderboard", {
           since_date: since.toISOString(),
         });
-        setStats((data as AttendanceStats[]) ?? []);
+        setStats((data as AttendanceStats[])?.length ? (data as AttendanceStats[]) : MOCK_LEADERBOARD.slice(0, 5));
       }
       setLoading(false);
     }
@@ -75,15 +76,21 @@ export function LeaderboardTable() {
               <TableBody>
                 {stats.map((s, i) => (
                   <TableRow key={s.user_id}>
-                    <TableCell className="font-mono text-muted-foreground">{i + 1}</TableCell>
+                    <TableCell className="font-mono text-muted-foreground">
+                      {i === 0 ? <span className="text-yellow-400 text-lg">🥇</span>
+                        : i === 1 ? <span className="text-gray-300 text-lg">🥈</span>
+                        : i === 2 ? <span className="text-amber-600 text-lg">🥉</span>
+                        : i + 1}
+                    </TableCell>
                     <TableCell>
                       <Link href={`/profile/${s.user_id}` as "/"} className="flex items-center gap-3 hover:text-primary transition-colors">
+                        <span className="text-base" title="Israel">🇮🇱</span>
                         <Avatar className="h-7 w-7">
                           <AvatarImage src={s.avatar_url || undefined} />
                           <AvatarFallback className="text-xs">{s.display_name.charAt(0).toUpperCase()}</AvatarFallback>
                         </Avatar>
                         <span className="font-medium">{s.display_name}</span>
-                        {s.et_nickname && <span className="text-muted-foreground text-xs">({s.et_nickname})</span>}
+                        {s.et_nickname && s.et_nickname !== s.display_name && <span className="text-muted-foreground text-xs">({s.et_nickname})</span>}
                       </Link>
                     </TableCell>
                     <TableCell className="text-end text-muted-foreground">
