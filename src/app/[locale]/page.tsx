@@ -34,13 +34,13 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             <div className="animate-fade-up delay-300 flex flex-wrap gap-4 pt-4">
               <Link
                 href="/gather"
-                className="inline-flex items-center h-12 px-8 rounded-md text-sm font-bold bg-primary text-primary-foreground shadow-lg shadow-primary/20 transition-all duration-200 hover:shadow-xl hover:shadow-primary/30 hover:translate-y-[-2px] active:translate-y-[0px]"
+                className="clip-tactical-lg btn-crosshair inline-flex items-center h-12 px-8 text-sm font-bold uppercase tracking-wider bg-primary text-primary-foreground border border-primary/60 transition-all duration-200 hover:bg-primary/90 hover:shadow-[0_0_16px_rgba(34,197,94,0.25)] active:scale-[0.97]"
               >
                 {t("home.createGather")}
               </Link>
               <Link
                 href="/community"
-                className="inline-flex items-center h-12 px-8 rounded-md text-sm font-semibold text-foreground/80 border-2 border-border transition-all duration-200 hover:text-accent hover:border-accent/50 active:translate-y-[0px]"
+                className="clip-tactical-lg btn-crosshair inline-flex items-center h-12 px-8 text-sm font-semibold uppercase tracking-wider text-foreground/80 border border-border bg-transparent transition-all duration-200 hover:text-accent hover:border-accent/50 active:scale-[0.97]"
               >
                 {t("home.joinCommunity")}
               </Link>

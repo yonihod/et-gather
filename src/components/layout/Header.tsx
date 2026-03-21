@@ -77,7 +77,7 @@ export function Header() {
           ) : (
             <Link
               href="/auth/login"
-              className="inline-flex items-center justify-center h-8 px-3 rounded-lg text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/80 transition-colors"
+              className="clip-tactical inline-flex items-center justify-center h-8 px-4 text-xs font-bold uppercase tracking-wider bg-primary text-primary-foreground border border-primary/60 transition-all duration-200 hover:bg-primary/90 hover:shadow-[0_0_12px_rgba(34,197,94,0.2)] active:scale-[0.97]"
             >
               {t("login")}
             </Link>
