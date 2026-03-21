@@ -95,6 +95,12 @@
     "orContinueWith": "או המשך עם",
     "continueAnonymously": "המשך בלי התחברות →"
   },
+  "server": {
+    "title": "שרת קהילה",
+    "offline": "השרת לא זמין כרגע",
+    "map": "מפה",
+    "empty": "אין שחקנים מחוברים"
+  },
   "common": {
     "loading": "טוען...",
     "error": "שגיאה",

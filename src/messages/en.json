@@ -95,6 +95,12 @@
     "orContinueWith": "Or continue with",
     "continueAnonymously": "Continue without signing in →"
   },
+  "server": {
+    "title": "Community Server",
+    "offline": "Server is currently offline",
+    "map": "Map",
+    "empty": "No players online"
+  },
   "common": {
     "loading": "Loading...",
     "error": "Error",

@@ -3,6 +3,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/routing";
 import { LeaderboardTable } from "@/components/leaderboard/LeaderboardTable";
 import { ActiveGatherCard } from "@/components/gather/ActiveGatherCard";
+import { ServerStatus } from "@/components/server/ServerStatus";
 
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -78,13 +79,18 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       {/* Divider */}
       <div className="border-t border-border" />
 
-      {/* Active Gather */}
-      <section>
-        <div className="flex items-baseline gap-3 mb-6">
-          <h2 className="text-2xl font-bold">{t("home.activeGather")}</h2>
-          <span className="inline-block w-2 h-2 rounded-full bg-primary animate-pulse" />
+      {/* Server Status + Active Gather — side by side */}
+      <section className="grid md:grid-cols-[1fr_300px] gap-8">
+        <div>
+          <div className="flex items-baseline gap-3 mb-6">
+            <h2 className="text-2xl font-bold">{t("home.activeGather")}</h2>
+            <span className="inline-block w-2 h-2 rounded-full bg-primary animate-pulse" />
+          </div>
+          <ActiveGatherCard />
         </div>
-        <ActiveGatherCard />
+        <div>
+          <ServerStatus />
+        </div>
       </section>
 
       {/* Leaderboard */}
