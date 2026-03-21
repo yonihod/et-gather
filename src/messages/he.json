@@ -1,0 +1,100 @@
+{
+  "nav": {
+    "home": "ראשי",
+    "gather": "גאת׳ר",
+    "community": "קהילה",
+    "configs": "הגדרות משחק",
+    "profile": "פרופיל",
+    "login": "התחברות",
+    "logout": "התנתקות",
+    "admin": "ניהול"
+  },
+  "home": {
+    "title": "ET Gather",
+    "subtitle": "קהילת RTCW: Enemy Territory ישראל",
+    "activeGather": "גאת׳ר פעיל",
+    "noActiveGather": "אין גאת׳ר פעיל כרגע",
+    "createGather": "צור גאת׳ר חדש",
+    "leaderboard": "טבלת מובילים"
+  },
+  "gather": {
+    "title": "גאת׳ר",
+    "join": "הצטרף",
+    "leave": "עזוב",
+    "create": "צור גאת׳ר",
+    "start": "התחל משחק",
+    "complete": "סיים משחק",
+    "cancel": "בטל",
+    "status": {
+      "open": "פתוח",
+      "ready": "מוכן",
+      "live": "פעיל",
+      "completed": "הסתיים",
+      "cancelled": "בוטל"
+    },
+    "slots": "{current} מתוך {max} שחקנים",
+    "teamBalance": "איזון קבוצות",
+    "team1": "קבוצה 1",
+    "team2": "קבוצה 2",
+    "mode": {
+      "5v5": "5 על 5",
+      "6v6": "6 על 6"
+    },
+    "history": "היסטוריית גאת׳רים",
+    "noHistory": "אין גאת׳רים קודמים",
+    "alreadyActive": "כבר יש גאת׳ר פעיל",
+    "mustLogin": "יש להתחבר כדי להצטרף"
+  },
+  "leaderboard": {
+    "title": "טבלת מובילים",
+    "rank": "#",
+    "player": "שחקן",
+    "gathers": "גאת׳רים",
+    "points": "נקודות",
+    "last30": "30 יום אחרונים",
+    "allTime": "כל הזמנים",
+    "last7": "7 ימים אחרונים"
+  },
+  "profile": {
+    "title": "פרופיל",
+    "totalGathers": "סה\"כ גאת׳רים",
+    "attendancePoints": "נקודות נוכחות",
+    "recentGathers": "גאת׳רים אחרונים",
+    "memberSince": "חבר מאז",
+    "etNickname": "שם במשחק",
+    "editProfile": "ערוך פרופיל"
+  },
+  "community": {
+    "title": "קהילה",
+    "server": "שרת קהילה",
+    "maps": "מפות להורדה",
+    "telegram": "טלגרם",
+    "discord": "דיסקורד",
+    "facebook": "פייסבוק",
+    "welcome": "ברוכים הבאים לערוץ RTCW: ET ישראל"
+  },
+  "configs": {
+    "title": "הגדרות משחק",
+    "subtitle": "הורדת קבצי הגדרות והוראות התקנה",
+    "download": "הורד",
+    "setupGuide": "מדריך התקנה",
+    "competitive": "תחרותי",
+    "beginner": "מתחיל",
+    "performance": "ביצועים"
+  },
+  "auth": {
+    "login": "התחברות",
+    "loginWith": "התחבר עם {provider}",
+    "email": "אימייל",
+    "password": "סיסמה",
+    "signUp": "הרשמה",
+    "orContinueWith": "או המשך עם"
+  },
+  "common": {
+    "loading": "טוען...",
+    "error": "שגיאה",
+    "save": "שמור",
+    "cancel": "ביטול",
+    "back": "חזרה"
+  }
+}

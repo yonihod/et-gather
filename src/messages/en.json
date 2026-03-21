@@ -1,0 +1,100 @@
+{
+  "nav": {
+    "home": "Home",
+    "gather": "Gather",
+    "community": "Community",
+    "configs": "Game Configs",
+    "profile": "Profile",
+    "login": "Login",
+    "logout": "Logout",
+    "admin": "Admin"
+  },
+  "home": {
+    "title": "ET Gather",
+    "subtitle": "RTCW: Enemy Territory Israel Community",
+    "activeGather": "Active Gather",
+    "noActiveGather": "No active gather right now",
+    "createGather": "Create New Gather",
+    "leaderboard": "Leaderboard"
+  },
+  "gather": {
+    "title": "Gather",
+    "join": "Join",
+    "leave": "Leave",
+    "create": "Create Gather",
+    "start": "Start Game",
+    "complete": "Complete Game",
+    "cancel": "Cancel",
+    "status": {
+      "open": "Open",
+      "ready": "Ready",
+      "live": "Live",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    },
+    "slots": "{current} of {max} players",
+    "teamBalance": "Balance Teams",
+    "team1": "Team 1",
+    "team2": "Team 2",
+    "mode": {
+      "5v5": "5v5",
+      "6v6": "6v6"
+    },
+    "history": "Gather History",
+    "noHistory": "No previous gathers",
+    "alreadyActive": "There is already an active gather",
+    "mustLogin": "You must log in to join"
+  },
+  "leaderboard": {
+    "title": "Leaderboard",
+    "rank": "#",
+    "player": "Player",
+    "gathers": "Gathers",
+    "points": "Points",
+    "last30": "Last 30 Days",
+    "allTime": "All Time",
+    "last7": "Last 7 Days"
+  },
+  "profile": {
+    "title": "Profile",
+    "totalGathers": "Total Gathers",
+    "attendancePoints": "Attendance Points",
+    "recentGathers": "Recent Gathers",
+    "memberSince": "Member Since",
+    "etNickname": "ET Nickname",
+    "editProfile": "Edit Profile"
+  },
+  "community": {
+    "title": "Community",
+    "server": "Community Server",
+    "maps": "Maps Download",
+    "telegram": "Telegram",
+    "discord": "Discord",
+    "facebook": "Facebook",
+    "welcome": "Welcome to RTCW: ET Israel"
+  },
+  "configs": {
+    "title": "Game Configs",
+    "subtitle": "Download config files and setup instructions",
+    "download": "Download",
+    "setupGuide": "Setup Guide",
+    "competitive": "Competitive",
+    "beginner": "Beginner",
+    "performance": "Performance"
+  },
+  "auth": {
+    "login": "Login",
+    "loginWith": "Login with {provider}",
+    "email": "Email",
+    "password": "Password",
+    "signUp": "Sign Up",
+    "orContinueWith": "Or continue with"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "save": "Save",
+    "cancel": "Cancel",
+    "back": "Back"
+  }
+}

@@ -11,6 +11,15 @@ const config: Config = {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        accent: "var(--accent)",
+        "accent-dim": "var(--accent-dim)",
+        surface: "var(--surface)",
+        "surface-hover": "var(--surface-hover)",
+        border: "var(--border)",
+        muted: "var(--muted)",
+      },
+      fontFamily: {
+        sans: ["var(--font-rubik)", "system-ui", "sans-serif"],
       },
     },
   },
