@@ -23,14 +23,13 @@ export function Header() {
   }, []);
 
   const navItems = [
-    { href: "/" as const, label: t("home"), dot: false },
     { href: "/gather" as const, label: t("gather"), dot: false },
     { href: "/community" as const, label: t("community"), dot: serverOnline },
     { href: "/configs" as const, label: t("configs"), dot: false },
   ];
 
   return (
-    <header className="border-b border-border/50 sticky top-0 z-50 bg-background/95 backdrop-blur-sm">
+    <header className="border-b border-border/50 sticky top-0 z-50 bg-background/95 backdrop-blur-sm animate-header-enter">
       <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
         <div className="flex items-center gap-6">
           <Link href="/" className="flex items-center gap-2">
@@ -42,10 +41,10 @@ export function Header() {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm transition-all duration-200 ${
+                className={`nav-link-hover flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm transition-all duration-200 ${
                   pathname === item.href
-                    ? "bg-primary/10 text-primary"
-                    : "text-muted-foreground hover:text-foreground hover:bg-secondary hover:translate-y-[-1px]"
+                    ? "nav-active font-medium"
+                    : "text-muted-foreground hover:text-foreground hover:translate-y-[-1px]"
                 }`}
               >
                 {item.label}
