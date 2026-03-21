@@ -1,11 +1,18 @@
 #!/bin/sh
-# ET Server Status Poller — runs every 60s
-# Uses netcat for UDP query (works where Node dgram doesn't)
+# ET Server Status Poller
+# Queries the ET server via UDP every 60s, writes to Supabase
+# Includes a tiny HTTP server to keep Fly.io from stopping the machine
 
 echo "ET Server Status Poller started"
 echo "Target: 84.229.240.21:27960"
 echo "Interval: 60s"
 
+# Start a tiny HTTP health check server in the background
+while true; do
+  echo -e "HTTP/1.1 200 OK\r\nContent-Length: 2\r\n\r\nok" | nc -l -p 8080 > /dev/null 2>&1
+done &
+
+# Main polling loop
 while true; do
   RAW=$(printf '\xff\xff\xff\xffgetstatus\n' | nc -u -w 3 84.229.240.21 27960 2>/dev/null || true)
 
