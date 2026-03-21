@@ -57,7 +57,7 @@ export function ServerStatus() {
           <span className="text-sm font-medium">{t("title")}</span>
         </div>
         <p className="text-xs text-muted-foreground">{t("offline")}</p>
-        <p className="text-xs text-muted-foreground mt-1 font-mono">84.229.240.21</p>
+        <p className="text-xs text-muted-foreground mt-1 font-mono" dir="ltr">84.229.240.21</p>
       </div>
     );
   }
@@ -107,7 +107,7 @@ export function ServerStatus() {
 
       {/* Server IP */}
       <div className="mt-3 pt-2 border-t border-border/30">
-        <p className="text-[10px] text-muted-foreground font-mono">
+        <p className="text-[10px] text-muted-foreground font-mono" dir="ltr">
           /connect 84.229.240.21
         </p>
       </div>

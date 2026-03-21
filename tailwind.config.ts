@@ -20,6 +20,7 @@ const config: Config = {
       },
       fontFamily: {
         sans: ["var(--font-rubik)", "system-ui", "sans-serif"],
+        display: ["var(--font-outfit)", "var(--font-rubik)", "system-ui", "sans-serif"],
       },
     },
   },

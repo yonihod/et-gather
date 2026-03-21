@@ -30,7 +30,7 @@ export default async function LocaleLayout({ children, params }: Props) {
       <NextIntlClientProvider locale={locale} messages={messages}>
         <AuthGate>
           <Header />
-          <main className="max-w-6xl mx-auto px-4 py-6">{children}</main>
+          <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8">{children}</main>
         </AuthGate>
       </NextIntlClientProvider>
     </div>
