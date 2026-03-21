@@ -75,6 +75,9 @@ export function ServerStatus() {
         </span>
       </div>
 
+      {/* Server name */}
+      <div className="text-xs text-muted-foreground mb-1">{data.hostname}</div>
+
       {/* Map */}
       <div className="text-xs text-muted-foreground mb-3">
         {t("map")}: <span className="text-accent font-medium">{data.map}</span>
