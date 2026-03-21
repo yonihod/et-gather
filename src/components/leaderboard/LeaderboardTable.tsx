@@ -6,7 +6,6 @@ import { createClient } from "@/lib/supabase/client";
 import { Link } from "@/i18n/routing";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import type { AttendanceStats } from "@/types/gather";
 import { MOCK_LEADERBOARD } from "@/lib/mock-data";
@@ -47,24 +46,33 @@ export function LeaderboardTable() {
 
   return (
     <Card>
-      <CardContent className="p-0">
-        <Tabs value={period} onValueChange={(v) => setPeriod(v as Period)} className="w-full">
-          <div className="px-4 pt-3">
-            <TabsList>
-              <TabsTrigger value="allTime">{t("allTime")}</TabsTrigger>
-              <TabsTrigger value="last30">{t("last30")}</TabsTrigger>
-              <TabsTrigger value="last7">{t("last7")}</TabsTrigger>
-            </TabsList>
+      <CardContent className="p-4">
+        <div className="px-4 py-3 border-b">
+          <div className="flex gap-1">
+            {(["allTime", "last30", "last7"] as Period[]).map((p) => (
+              <button
+                key={p}
+                onClick={() => setPeriod(p)}
+                className={`px-3 py-1.5 rounded-md text-sm transition-colors ${
+                  period === p
+                    ? "bg-primary/10 text-primary font-medium"
+                    : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+                }`}
+              >
+                {t(p)}
+              </button>
+            ))}
           </div>
+        </div>
 
-          {loading ? (
-            <div className="p-8 text-center">
-              <div className="animate-pulse h-4 bg-secondary rounded w-1/3 mx-auto" />
-            </div>
-          ) : stats.length === 0 ? (
-            <div className="p-8 text-center text-muted-foreground text-sm">No data yet</div>
-          ) : (
-            <Table>
+        {loading ? (
+          <div className="p-8 text-center">
+            <div className="animate-pulse h-4 bg-secondary rounded w-1/3 mx-auto" />
+          </div>
+        ) : stats.length === 0 ? (
+          <div className="p-8 text-center text-muted-foreground text-sm">No data yet</div>
+        ) : (
+          <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-12">{t("rank")}</TableHead>
@@ -104,7 +112,6 @@ export function LeaderboardTable() {
               </TableBody>
             </Table>
           )}
-        </Tabs>
       </CardContent>
     </Card>
   );
