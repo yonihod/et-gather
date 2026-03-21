@@ -69,13 +69,8 @@ export function ProfileView({ userId }: { userId: string }) {
       })
       .eq("id", userId);
 
-    setProfile({
-      ...profile,
-      display_name: editName.trim() || profile.display_name,
-      et_nickname: editNickname.trim() || null,
-    });
     setSaving(false);
-    setEditing(false);
+    window.location.reload();
   }
 
   if (loading) return <div className="animate-pulse h-40 bg-card rounded-lg" />;
