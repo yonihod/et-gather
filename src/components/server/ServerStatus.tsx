@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useTranslations } from "next-intl";
 
 interface PlayerInfo {
@@ -21,30 +21,43 @@ export function ServerStatus() {
   const t = useTranslations("server");
   const [data, setData] = useState<ServerData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [refreshKey, setRefreshKey] = useState(0);
+  const prevPlayersRef = useRef<Map<string, { score: number; ping: number }>>(new Map());
 
   useEffect(() => {
-    async function fetch() {
+    async function fetchStatus() {
       try {
         const res = await window.fetch("/api/server-status");
         const json = await res.json();
+
+        // Track which values changed for flash animation
+        if (data?.players) {
+          const prev = new Map<string, { score: number; ping: number }>();
+          for (const p of data.players) {
+            prev.set(p.name, { score: p.score, ping: p.ping });
+          }
+          prevPlayersRef.current = prev;
+        }
+
         setData(json);
+        setRefreshKey((k) => k + 1);
       } catch {
         setData(null);
       }
       setLoading(false);
     }
-    fetch();
+    fetchStatus();
 
-    // Refresh every 30 seconds
-    const interval = setInterval(fetch, 30000);
+    const interval = setInterval(fetchStatus, 30000);
     return () => clearInterval(interval);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (loading) {
     return (
-      <div className="border rounded-md p-4 animate-pulse">
-        <div className="h-4 bg-secondary rounded w-1/2 mb-3" />
-        <div className="h-3 bg-secondary rounded w-1/3" />
+      <div className="border rounded-md p-4">
+        <div className="h-4 skeleton-scan rounded w-1/2 mb-3" />
+        <div className="h-3 skeleton-scan rounded w-1/3" />
       </div>
     );
   }
@@ -62,12 +75,15 @@ export function ServerStatus() {
     );
   }
 
+  const sorted = [...data.players].sort((a, b) => b.score - a.score);
+  const prev = prevPlayersRef.current;
+
   return (
     <div className="border rounded-md p-4 border-s-2 border-s-primary/50">
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+          <span className="w-2 h-2 rounded-full bg-green-500 signal-dot" />
           <span className="text-sm font-semibold text-primary">{t("title")}</span>
         </div>
         <span className="text-xs tabular-nums font-medium text-accent">
@@ -83,26 +99,32 @@ export function ServerStatus() {
         {t("map")}: <span className="text-accent font-medium">{data.map}</span>
       </div>
 
-      {/* Player list */}
-      {data.players.length > 0 ? (
-        <div className="space-y-0.5">
-          {data.players
-            .sort((a, b) => b.score - a.score)
-            .map((player, i) => (
+      {/* Player list — staggered entrance + value flash on change */}
+      {sorted.length > 0 ? (
+        <div className="space-y-0.5" key={refreshKey}>
+          {sorted.map((player, i) => {
+            const prevData = prev.get(player.name);
+            const scoreChanged = prevData && prevData.score !== player.score;
+
+            return (
               <div
-                key={i}
-                className="flex items-center justify-between text-xs py-1 border-b border-border/30 last:border-0"
+                key={player.name}
+                className="flex items-center justify-between text-xs py-1 border-b border-border/30 last:border-0 animate-row-enter"
+                style={{ animationDelay: `${i * 30}ms` }}
               >
                 <div className="flex items-center gap-1.5">
                   <span className="text-[10px]">🇮🇱</span>
                   <span className="font-medium">{player.name}</span>
                 </div>
-                <div className="flex items-center gap-3 text-muted-foreground tabular-nums">
-                  <span>{player.score} xp</span>
-                  <span>{player.ping}ms</span>
+                <div className="flex items-center gap-3 tabular-nums">
+                  <span className={scoreChanged ? "animate-value-flash" : "text-muted-foreground"}>
+                    {player.score} xp
+                  </span>
+                  <span className="text-muted-foreground">{player.ping}ms</span>
                 </div>
               </div>
-            ))}
+            );
+          })}
         </div>
       ) : (
         <p className="text-xs text-muted-foreground">{t("empty")}</p>

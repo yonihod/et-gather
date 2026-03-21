@@ -41,6 +41,8 @@
     "team1": "Team 1",
     "team2": "Team 2",
     "mode": {
+      "3v3": "3v3",
+      "4v4": "4v4",
       "5v5": "5v5",
       "6v6": "6v6"
     },
@@ -66,7 +68,10 @@
     "recentGathers": "Recent Gathers",
     "memberSince": "Member Since",
     "etNickname": "ET Nickname",
-    "editProfile": "Edit Profile"
+    "editProfile": "Edit Profile",
+    "displayName": "Display Name",
+    "save": "Save",
+    "cancel": "Cancel"
   },
   "community": {
     "title": "Community",
@@ -93,7 +98,14 @@
     "password": "Password",
     "signUp": "Sign Up",
     "orContinueWith": "Or continue with",
-    "continueAnonymously": "Continue without signing in →"
+    "continueAnonymously": "Continue without signing in →",
+    "setupNickname": "Choose your nickname",
+    "setupNicknameDesc": "What's your ET nickname? It'll show up in gathers and the leaderboard.",
+    "nicknameLabel": "ET Nickname",
+    "nicknameHint": "Your in-game name",
+    "displayNameLabel": "Display Name",
+    "saveAndContinue": "Save & Continue",
+    "skipForNow": "Skip for now →"
   },
   "server": {
     "title": "Community Server",

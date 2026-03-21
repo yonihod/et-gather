@@ -86,7 +86,14 @@ export function GatherQueue() {
   }
 
   if (loading) {
-    return <Card className="animate-pulse"><CardContent className="p-8"><div className="h-8 bg-secondary rounded w-1/3 mx-auto" /></CardContent></Card>;
+    return (
+      <Card>
+        <CardContent className="p-8">
+          <div className="h-8 skeleton-scan rounded w-1/3 mx-auto" />
+          <div className="h-4 skeleton-scan rounded w-1/2 mx-auto mt-3" />
+        </CardContent>
+      </Card>
+    );
   }
 
   if (!gather) {
@@ -99,14 +106,13 @@ export function GatherQueue() {
     return (
       <Card>
         <CardContent className="p-8 text-center space-y-4">
-          <p className="text-muted-foreground">No active gather</p>
-          <div className="flex justify-center gap-3">
-            <Button onClick={() => createGather("5v5")} disabled={actionLoading}>
-              {t("create")} — {t("mode.5v5")}
-            </Button>
-            <Button onClick={() => createGather("6v6")} disabled={actionLoading} variant="secondary">
-              {t("create")} — {t("mode.6v6")}
-            </Button>
+          <TacticalEmptyState />
+          <div className="flex flex-wrap justify-center gap-2">
+            {(["3v3", "4v4", "5v5", "6v6"] as const).map((mode) => (
+              <Button key={mode} onClick={() => createGather(mode)} disabled={actionLoading} variant={mode === "6v6" ? "default" : "secondary"} size="sm">
+                {t("create")} — {t(`mode.${mode}`)}
+              </Button>
+            ))}
           </div>
         </CardContent>
       </Card>
@@ -217,14 +223,14 @@ export function GatherQueue() {
           </div>
         )}
 
-        {/* Animated progress bar */}
-        <div className="flex gap-1 mt-6">
+        {/* Animated progress bar — flashes when full ("locked and loaded") */}
+        <div className={`flex gap-1 mt-6 ${isFull && prevCount < gather.max_players ? "animate-locked-flash" : ""}`}>
           {Array.from({ length: gather.max_players }).map((_, i) => (
             <div
               key={i}
               className={`h-1.5 flex-1 rounded-sm transition-all duration-300 ${
                 i < participants.length
-                  ? isLive ? "bg-destructive" : "bg-primary"
+                  ? isLive ? "bg-destructive" : isFull ? "bg-accent" : "bg-primary"
                   : "bg-border"
               } ${i >= prevCount && i < participants.length ? "animate-segment-fill" : ""}`}
               style={
@@ -257,5 +263,23 @@ export function GatherQueue() {
         </div>
       </CardContent>
     </Card>
+  );
+}
+
+const TACTICAL_MESSAGES = [
+  "Waiting for operators...",
+  "Briefing room is empty",
+  "No active deployment",
+  "All units on standby",
+  "Be the first to deploy",
+];
+
+function TacticalEmptyState() {
+  // Pick a message based on the current minute so it changes but isn't random on every render
+  const msgIndex = Math.floor(Date.now() / 60000) % TACTICAL_MESSAGES.length;
+  return (
+    <p className="text-muted-foreground italic">
+      {TACTICAL_MESSAGES[msgIndex]}
+    </p>
   );
 }

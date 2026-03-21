@@ -1,5 +1,5 @@
 export type GatherStatus = "open" | "ready" | "live" | "completed" | "cancelled";
-export type GatherMode = "5v5" | "6v6";
+export type GatherMode = "3v3" | "4v4" | "5v5" | "6v6";
 
 export interface Gather {
   id: string;
@@ -57,5 +57,6 @@ export const VALID_TRANSITIONS: Record<GatherStatus, GatherStatus[]> = {
 };
 
 export function getMaxPlayers(mode: GatherMode): number {
-  return mode === "5v5" ? 10 : 12;
+  const map: Record<GatherMode, number> = { "3v3": 6, "4v4": 8, "5v5": 10, "6v6": 12 };
+  return map[mode];
 }

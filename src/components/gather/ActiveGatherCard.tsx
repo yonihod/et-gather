@@ -74,7 +74,12 @@ export function ActiveGatherCard() {
   }
 
   if (loading) {
-    return <div className="animate-pulse border rounded-md p-6"><div className="h-6 bg-secondary rounded w-1/3" /></div>;
+    return (
+      <div className="border rounded-md p-6">
+        <div className="h-6 skeleton-scan rounded w-1/3" />
+        <div className="h-4 skeleton-scan rounded w-1/2 mt-3" />
+      </div>
+    );
   }
 
   // Mock gather (no real gather active)
@@ -205,14 +210,14 @@ export function ActiveGatherCard() {
         ))}
       </div>
 
-      {/* Progress bar */}
-      <div className="flex gap-1 mt-2">
+      {/* Progress bar — flashes gold when full */}
+      <div className={`flex gap-1 mt-2 ${isFull && prevCount < gather.max_players ? "animate-locked-flash" : ""}`}>
         {Array.from({ length: gather.max_players }).map((_, i) => (
           <div
             key={i}
             className={`h-1.5 flex-1 rounded-sm transition-all duration-300 ${
               i < participantCount
-                ? isLive ? "bg-destructive" : "bg-primary"
+                ? isLive ? "bg-destructive" : isFull ? "bg-accent" : "bg-primary"
                 : "bg-border"
             } ${i >= prevCount && i < participantCount ? "animate-segment-fill" : ""}`}
             style={i >= prevCount && i < participantCount ? { animationDelay: `${(i - prevCount) * 50}ms` } : undefined}

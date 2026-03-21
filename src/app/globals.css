@@ -234,11 +234,220 @@
   animation: heartbeat 1.5s ease-in-out infinite;
 }
 
+/* ── Leaderboard row stagger entrance ──────────────────────────────── */
+@keyframes row-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+[dir="rtl"] .animate-row-enter {
+  --row-dir: 8px;
+}
+
+.animate-row-enter {
+  animation: row-slide-in 0.4s var(--ease-out-quart) both;
+}
+
+/* ── Top 3 rank glow ──────────────────────────────────────────────── */
+@property --glow-opacity {
+  syntax: "<number>";
+  initial-value: 0.04;
+  inherits: false;
+}
+
+@keyframes rank-glow {
+  0%, 100% { --glow-opacity: 0.04; }
+  50% { --glow-opacity: 0.1; }
+}
+
+.rank-glow-gold {
+  background: linear-gradient(90deg, oklch(0.70 0.14 70 / var(--glow-opacity)), transparent 60%);
+  animation: rank-glow 3s ease-in-out infinite;
+}
+
+.rank-glow-silver {
+  background: linear-gradient(90deg, oklch(0.65 0.03 250 / var(--glow-opacity)), transparent 60%);
+  animation: rank-glow 3s ease-in-out infinite 0.5s;
+}
+
+.rank-glow-bronze {
+  background: linear-gradient(90deg, oklch(0.55 0.10 50 / var(--glow-opacity)), transparent 60%);
+  animation: rank-glow 3s ease-in-out infinite 1s;
+}
+
+[dir="rtl"] .rank-glow-gold,
+[dir="rtl"] .rank-glow-silver,
+[dir="rtl"] .rank-glow-bronze {
+  background: linear-gradient(-90deg, oklch(0.70 0.14 70 / var(--glow-opacity)), transparent 60%);
+}
+
+/* ── Signal ripple for server status ──────────────────────────────── */
+@keyframes signal-ripple {
+  0% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(3.5);
+    opacity: 0;
+  }
+}
+
+.signal-dot {
+  position: relative;
+}
+
+.signal-dot::before,
+.signal-dot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background: inherit;
+  animation: signal-ripple 2.5s ease-out infinite;
+}
+
+.signal-dot::after {
+  animation-delay: 1.25s;
+}
+
+/* ── Data flash for changed values ────────────────────────────────── */
+@keyframes value-flash {
+  0% { color: oklch(0.70 0.14 70); }
+  100% { color: inherit; }
+}
+
+.animate-value-flash {
+  animation: value-flash 1.2s var(--ease-out-quart) both;
+}
+
+/* ── Card tilt (3D perspective hover) ─────────────────────────────── */
+.tilt-card {
+  transition: transform 0.15s ease-out, box-shadow 0.15s ease-out;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.tilt-card:hover {
+  box-shadow: 0 8px 30px -8px oklch(0 0 0 / 0.3);
+}
+
+/* ── Download button press ────────────────────────────────────────── */
+@keyframes btn-press {
+  0% { transform: scale(1); }
+  40% { transform: scale(0.93); }
+  100% { transform: scale(1); }
+}
+
+.animate-btn-press {
+  animation: btn-press 0.35s var(--ease-out-quart);
+}
+
+/* ── Icon float (subtle idle animation) ───────────────────────────── */
+@keyframes gentle-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+.animate-float {
+  animation: gentle-float 3s ease-in-out infinite;
+}
+
+/* ── Counting animation helper (uses @property) ───────────────────── */
+@property --count {
+  syntax: "<integer>";
+  initial-value: 0;
+  inherits: false;
+}
+
+.count-up {
+  transition: --count 0.8s var(--ease-out-expo);
+  counter-reset: count var(--count);
+}
+
+.count-up::after {
+  content: counter(count);
+}
+
+/* ── #1 rank shimmer ──────────────────────────────────────────────── */
+@property --shimmer-x {
+  syntax: "<percentage>";
+  initial-value: -100%;
+  inherits: false;
+}
+
+@keyframes name-shimmer {
+  0% { --shimmer-x: -100%; }
+  100% { --shimmer-x: 200%; }
+}
+
+.shimmer-gold {
+  background: linear-gradient(
+    90deg,
+    oklch(0.70 0.14 70) 0%,
+    oklch(0.85 0.12 70) var(--shimmer-x),
+    oklch(0.70 0.14 70) 100%
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: name-shimmer 4s ease-in-out infinite;
+}
+
+/* ── "Locked and loaded" flash when gather is full ────────────────── */
+@keyframes locked-flash {
+  0% { opacity: 1; }
+  30% { opacity: 0.4; }
+  60% { opacity: 1; }
+}
+
+.animate-locked-flash {
+  animation: locked-flash 0.6s var(--ease-out-quart);
+}
+
+/* ── Scanline loading skeleton ────────────────────────────────────── */
+@keyframes scanline {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton-scan {
+  background: linear-gradient(
+    90deg,
+    oklch(0.20 0.015 80) 25%,
+    oklch(0.25 0.015 80) 50%,
+    oklch(0.20 0.015 80) 75%
+  );
+  background-size: 200% 100%;
+  animation: scanline 2s ease-in-out infinite;
+}
+
+/* ── Copy button success state ────────────────────────────────────── */
+@keyframes copy-success {
+  0% { transform: scale(0.95); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.animate-copy-success {
+  animation: copy-success 0.3s var(--ease-out-quart);
+}
+
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+  .signal-dot::before,
+  .signal-dot::after {
+    display: none;
   }
 }

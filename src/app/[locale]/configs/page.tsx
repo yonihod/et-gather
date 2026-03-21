@@ -1,4 +1,7 @@
+"use client";
+
 import { useTranslations } from "next-intl";
+import { useRef, useCallback, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
@@ -35,46 +38,18 @@ export default function ConfigsPage() {
 
   return (
     <div className="space-y-8 max-w-2xl mx-auto">
-      <div>
+      <div className="animate-fade-up">
         <h1 className="text-2xl font-bold">{t("title")}</h1>
         <p className="text-muted-foreground mt-1">{t("subtitle")}</p>
       </div>
 
-      <div className="grid gap-4">
-        {configs.map((cfg) => (
-          <Card key={cfg.filename}>
-            <CardContent className="p-5">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <h3 className="font-semibold">{cfg.name}</h3>
-                  <p className="text-sm text-muted-foreground mt-1">{cfg.description}</p>
-                  <Badge
-                    variant="outline"
-                    className={`mt-2 ${
-                      cfg.category === "competitive"
-                        ? "border-yellow-500/30 text-yellow-400"
-                        : cfg.category === "beginner"
-                        ? "border-blue-500/30 text-blue-400"
-                        : "border-purple-500/30 text-purple-400"
-                    }`}
-                  >
-                    {t(cfg.category)}
-                  </Badge>
-                </div>
-                <a
-                  href={`/configs/${cfg.filename}`}
-                  download
-                  className="inline-flex items-center justify-center h-7 px-3 rounded-lg text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/80 transition-colors shrink-0"
-                >
-                  {t("download")}
-                </a>
-              </div>
-            </CardContent>
-          </Card>
+      <div className="grid gap-4" style={{ perspective: "800px" }}>
+        {configs.map((cfg, i) => (
+          <ConfigCard key={cfg.filename} cfg={cfg} index={i} downloadLabel={t("download")} categoryLabel={t(cfg.category)} />
         ))}
       </div>
 
-      <Card>
+      <Card className="animate-fade-up" style={{ animationDelay: "400ms" }}>
         <CardHeader>
           <CardTitle>{t("setupGuide")}</CardTitle>
         </CardHeader>
@@ -122,5 +97,82 @@ export default function ConfigsPage() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+function ConfigCard({ cfg, index, downloadLabel, categoryLabel }: { cfg: ConfigFile; index: number; downloadLabel: string; categoryLabel: string }) {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const btnRef = useRef<HTMLAnchorElement>(null);
+  const [downloaded, setDownloaded] = useState(false);
+
+  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    const el = cardRef.current;
+    if (!el) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    const rect = el.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    el.style.transform = `rotateY(${x * 5}deg) rotateX(${-y * 5}deg)`;
+  }, []);
+
+  const handleMouseLeave = useCallback(() => {
+    const el = cardRef.current;
+    if (el) el.style.transform = "";
+  }, []);
+
+  function handleDownloadClick() {
+    setDownloaded(true);
+    const el = btnRef.current;
+    if (el) {
+      el.classList.remove("animate-btn-press");
+      void el.offsetWidth;
+      el.classList.add("animate-btn-press");
+    }
+    setTimeout(() => setDownloaded(false), 2500);
+  }
+
+  return (
+    <Card
+      ref={cardRef}
+      className="tilt-card animate-fade-up"
+      style={{ animationDelay: `${index * 80 + 100}ms` }}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+    >
+      <CardContent className="p-5">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h3 className="font-semibold">{cfg.name}</h3>
+            <p className="text-sm text-muted-foreground mt-1">{cfg.description}</p>
+            <Badge
+              variant="outline"
+              className={`mt-2 ${
+                cfg.category === "competitive"
+                  ? "border-yellow-500/30 text-yellow-400"
+                  : cfg.category === "beginner"
+                  ? "border-blue-500/30 text-blue-400"
+                  : "border-purple-500/30 text-purple-400"
+              }`}
+            >
+              {categoryLabel}
+            </Badge>
+          </div>
+          <a
+            ref={btnRef}
+            href={`/configs/${cfg.filename}`}
+            download
+            onClick={handleDownloadClick}
+            className={`inline-flex items-center justify-center h-7 px-3 rounded-lg text-sm font-medium transition-all shrink-0 ${
+              downloaded
+                ? "bg-accent text-accent-foreground"
+                : "bg-primary text-primary-foreground hover:bg-primary/80"
+            }`}
+          >
+            {downloaded ? "Downloaded!" : downloadLabel}
+          </a>
+        </div>
+      </CardContent>
+    </Card>
   );
 }

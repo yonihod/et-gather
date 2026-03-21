@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { useRef, useCallback, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
@@ -18,9 +19,9 @@ export default function CommunityPage() {
 
   return (
     <div className="space-y-8 max-w-2xl mx-auto">
-      <h1 className="text-2xl font-bold">{t("title")}</h1>
+      <h1 className="text-2xl font-bold animate-fade-up">{t("title")}</h1>
 
-      <Card>
+      <Card className="animate-fade-up delay-100">
         <CardHeader>
           <CardTitle className="text-primary">{t("welcome")}</CardTitle>
         </CardHeader>
@@ -35,12 +36,14 @@ export default function CommunityPage() {
         </CardContent>
       </Card>
 
-      <div className="grid gap-3">
+      <div className="grid gap-3" style={{ perspective: "800px" }}>
         {links.map((link, i) => (
-          <Card key={i} className="hover:border-primary/30 transition-colors">
+          <TiltCard key={i} delay={i * 60 + 200}>
             <CardContent className="p-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <span className="text-2xl">{link.icon}</span>
+                <span className="text-2xl animate-float" style={{ animationDelay: `${i * 400}ms` }}>
+                  {link.icon}
+                </span>
                 <div>
                   <div className="font-medium">{link.label}</div>
                   <div className="text-sm text-muted-foreground">{link.value}</div>
@@ -59,21 +62,71 @@ export default function CommunityPage() {
                 <CopyButton text={link.value} />
               )}
             </CardContent>
-          </Card>
+          </TiltCard>
         ))}
       </div>
     </div>
   );
 }
 
+function TiltCard({ children, delay }: { children: React.ReactNode; delay: number }) {
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    const el = cardRef.current;
+    if (!el) return;
+    // Respect reduced motion
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    const rect = el.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    el.style.transform = `rotateY(${x * 6}deg) rotateX(${-y * 6}deg)`;
+  }, []);
+
+  const handleMouseLeave = useCallback(() => {
+    const el = cardRef.current;
+    if (el) el.style.transform = "";
+  }, []);
+
+  return (
+    <Card
+      ref={cardRef}
+      className="tilt-card hover:border-primary/30 animate-fade-up"
+      style={{ animationDelay: `${delay}ms` }}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+    >
+      {children}
+    </Card>
+  );
+}
+
 function CopyButton({ text }: { text: string }) {
+  const btnRef = useRef<HTMLButtonElement>(null);
+  const [copied, setCopied] = useState(false);
+
+  function handleClick() {
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    const el = btnRef.current;
+    if (el) {
+      el.classList.remove("animate-copy-success");
+      void el.offsetWidth;
+      el.classList.add("animate-copy-success");
+    }
+    setTimeout(() => setCopied(false), 2000);
+  }
+
   return (
     <Button
+      ref={btnRef}
       variant="outline"
       size="sm"
-      onClick={() => navigator.clipboard.writeText(text)}
+      onClick={handleClick}
+      className={copied ? "border-primary/40 text-primary" : ""}
     >
-      Copy IP
+      {copied ? "Copied!" : "Copy IP"}
     </Button>
   );
 }

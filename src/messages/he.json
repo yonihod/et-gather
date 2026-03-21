@@ -41,6 +41,8 @@
     "team1": "קבוצה 1",
     "team2": "קבוצה 2",
     "mode": {
+      "3v3": "3 על 3",
+      "4v4": "4 על 4",
       "5v5": "5 על 5",
       "6v6": "6 על 6"
     },
@@ -66,7 +68,10 @@
     "recentGathers": "גאת׳רים אחרונים",
     "memberSince": "חבר מאז",
     "etNickname": "שם במשחק",
-    "editProfile": "ערוך פרופיל"
+    "editProfile": "ערוך פרופיל",
+    "displayName": "שם תצוגה",
+    "save": "שמור",
+    "cancel": "ביטול"
   },
   "community": {
     "title": "קהילה",
@@ -93,7 +98,14 @@
     "password": "סיסמה",
     "signUp": "הרשמה",
     "orContinueWith": "או המשך עם",
-    "continueAnonymously": "המשך בלי התחברות →"
+    "continueAnonymously": "המשך בלי התחברות →",
+    "setupNickname": "בחר שם משחק",
+    "setupNicknameDesc": "איך קוראים לך ב-ET? הכינוי שלך יופיע בגאת׳רים ובטבלת הדירוג.",
+    "nicknameLabel": "כינוי במשחק",
+    "nicknameHint": "השם שלך בתוך המשחק (ET nickname)",
+    "displayNameLabel": "שם תצוגה",
+    "saveAndContinue": "שמור והמשך",
+    "skipForNow": "אדלג בינתיים →"
   },
   "server": {
     "title": "שרת קהילה",

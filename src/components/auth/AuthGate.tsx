@@ -11,8 +11,9 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 
 export function AuthGate({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuth();
+  const { user, profile, loading } = useAuth();
   const [dismissed, setDismissed] = useState(false);
+  const [nicknameSet, setNicknameSet] = useState(false);
 
   if (loading) {
     return (
@@ -25,11 +26,103 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
     );
   }
 
-  if (user || dismissed) {
-    return <>{children}</>;
+  if (!user && !dismissed) {
+    return <LoginOverlay onDismiss={() => setDismissed(true)} />;
   }
 
-  return <LoginOverlay onDismiss={() => setDismissed(true)} />;
+  // User is logged in but hasn't set nickname yet
+  if (user && profile && !profile.et_nickname && !nicknameSet) {
+    return <NicknameSetup userId={user.id} currentName={profile.display_name} onComplete={() => setNicknameSet(true)} />;
+  }
+
+  return <>{children}</>;
+}
+
+function NicknameSetup({ userId, currentName, onComplete }: { userId: string; currentName: string; onComplete: () => void }) {
+  const t = useTranslations("auth");
+  const [nickname, setNickname] = useState("");
+  const [displayName, setDisplayName] = useState(currentName);
+  const [saving, setSaving] = useState(false);
+
+  const supabase = createClient();
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!nickname.trim()) return;
+    setSaving(true);
+
+    await supabase
+      .from("profiles")
+      .update({
+        et_nickname: nickname.trim(),
+        display_name: displayName.trim() || currentName,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", userId);
+
+    setSaving(false);
+    onComplete();
+    window.location.reload();
+  }
+
+  return (
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="w-full max-w-sm space-y-6">
+        <div className="text-center space-y-3">
+          <Image
+            src="/images/logo.png"
+            alt="ET Gather Israel"
+            width={100}
+            height={100}
+            className="mx-auto"
+          />
+          <h1 className="font-display text-2xl font-bold">{t("setupNickname")}</h1>
+          <p className="text-sm text-muted-foreground">{t("setupNicknameDesc")}</p>
+        </div>
+
+        <Card>
+          <CardContent className="p-6">
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="text-sm font-medium block mb-1.5">{t("nicknameLabel")}</label>
+                <Input
+                  placeholder="e.g. RoNN, WAKTAKI, Skillz..."
+                  value={nickname}
+                  onChange={(e) => setNickname(e.target.value)}
+                  required
+                  maxLength={30}
+                  autoFocus
+                  dir="ltr"
+                />
+                <p className="text-xs text-muted-foreground mt-1">{t("nicknameHint")}</p>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium block mb-1.5">{t("displayNameLabel")}</label>
+                <Input
+                  placeholder={currentName}
+                  value={displayName}
+                  onChange={(e) => setDisplayName(e.target.value)}
+                  maxLength={50}
+                />
+              </div>
+
+              <Button type="submit" disabled={saving || !nickname.trim()} className="w-full">
+                {saving ? "..." : t("saveAndContinue")}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+
+        <button
+          onClick={onComplete}
+          className="w-full text-center text-sm text-muted-foreground hover:text-foreground transition-colors py-2"
+        >
+          {t("skipForNow")}
+        </button>
+      </div>
+    </div>
+  );
 }
 
 function LoginOverlay({ onDismiss }: { onDismiss: () => void }) {
@@ -72,7 +165,6 @@ function LoginOverlay({ onDismiss }: { onDismiss: () => void }) {
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
       <div className="w-full max-w-sm space-y-6">
-        {/* Logo + Title */}
         <div className="text-center space-y-3">
           <Image
             src="/images/logo.png"
@@ -90,7 +182,6 @@ function LoginOverlay({ onDismiss }: { onDismiss: () => void }) {
 
         <Card>
           <CardContent className="p-6 space-y-4">
-            {/* Discord */}
             <Button
               className="w-full bg-[#5865F2] hover:bg-[#4752C4] text-white"
               onClick={handleDiscordLogin}
@@ -107,43 +198,22 @@ function LoginOverlay({ onDismiss }: { onDismiss: () => void }) {
               <Separator className="flex-1" />
             </div>
 
-            {/* Email form */}
             <form onSubmit={handleEmailAuth} className="space-y-3">
-              <Input
-                type="email"
-                placeholder={t("email")}
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-              <Input
-                type="password"
-                placeholder={t("password")}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                minLength={6}
-              />
+              <Input type="email" placeholder={t("email")} value={email} onChange={(e) => setEmail(e.target.value)} required />
+              <Input type="password" placeholder={t("password")} value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} />
               {error && <p className="text-destructive text-sm">{error}</p>}
               <Button type="submit" disabled={submitLoading} className="w-full">
                 {submitLoading ? "..." : isSignUp ? t("signUp") : t("login")}
               </Button>
             </form>
 
-            <button
-              onClick={() => setIsSignUp(!isSignUp)}
-              className="w-full text-center text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
+            <button onClick={() => setIsSignUp(!isSignUp)} className="w-full text-center text-sm text-muted-foreground hover:text-foreground transition-colors">
               {isSignUp ? t("login") : t("signUp")}
             </button>
           </CardContent>
         </Card>
 
-        {/* Continue anonymously */}
-        <button
-          onClick={onDismiss}
-          className="w-full text-center text-sm text-muted-foreground hover:text-foreground transition-colors py-2"
-        >
+        <button onClick={onDismiss} className="w-full text-center text-sm text-muted-foreground hover:text-foreground transition-colors py-2">
           {t("continueAnonymously")}
         </button>
       </div>

@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
 import { Header } from "@/components/layout/Header";
 import { AuthGate } from "@/components/auth/AuthGate";
+import { ConsoleEasterEgg } from "@/components/effects/ConsoleEasterEgg";
 
 type Props = {
   children: React.ReactNode;
@@ -28,6 +29,7 @@ export default async function LocaleLayout({ children, params }: Props) {
   return (
     <div dir={dir} lang={locale}>
       <NextIntlClientProvider locale={locale} messages={messages}>
+        <ConsoleEasterEgg />
         <AuthGate>
           <Header />
           <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8">{children}</main>
