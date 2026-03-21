@@ -3,6 +3,7 @@ import { getMessages, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
 import { Header } from "@/components/layout/Header";
+import { AuthGate } from "@/components/auth/AuthGate";
 
 type Props = {
   children: React.ReactNode;
@@ -27,8 +28,10 @@ export default async function LocaleLayout({ children, params }: Props) {
   return (
     <div dir={dir} lang={locale}>
       <NextIntlClientProvider locale={locale} messages={messages}>
-        <Header />
-        <main className="max-w-6xl mx-auto px-4 py-6">{children}</main>
+        <AuthGate>
+          <Header />
+          <main className="max-w-6xl mx-auto px-4 py-6">{children}</main>
+        </AuthGate>
       </NextIntlClientProvider>
     </div>
   );

@@ -92,7 +92,8 @@
     "email": "Email",
     "password": "Password",
     "signUp": "Sign Up",
-    "orContinueWith": "Or continue with"
+    "orContinueWith": "Or continue with",
+    "continueAnonymously": "Continue without signing in →"
   },
   "common": {
     "loading": "Loading...",

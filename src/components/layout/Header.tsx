@@ -4,10 +4,14 @@ import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/routing";
 import { LocaleSwitcher } from "./LocaleSwitcher";
+import { useAuth } from "@/hooks/useAuth";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 
 export function Header() {
   const t = useTranslations("nav");
   const pathname = usePathname();
+  const { user, profile, loading, signOut } = useAuth();
 
   const navItems = [
     { href: "/" as const, label: t("home") },
@@ -42,12 +46,33 @@ export function Header() {
         </div>
         <div className="flex items-center gap-3">
           <LocaleSwitcher />
-          <Link
-            href="/auth/login"
-            className="inline-flex items-center justify-center h-8 px-3 rounded-lg text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/80 transition-colors"
-          >
-            {t("login")}
-          </Link>
+          {loading ? (
+            <div className="w-8 h-8 rounded-full bg-secondary animate-pulse" />
+          ) : user ? (
+            <div className="flex items-center gap-3">
+              <Link href={`/profile/${user.id}` as "/"} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+                <Avatar className="h-8 w-8">
+                  <AvatarImage src={profile?.avatar_url || user.user_metadata?.avatar_url || undefined} />
+                  <AvatarFallback className="text-xs bg-primary/10 text-primary">
+                    {(profile?.display_name || user.user_metadata?.full_name || "U").charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <span className="text-sm font-medium hidden sm:inline">
+                  {profile?.display_name || user.user_metadata?.full_name || "Player"}
+                </span>
+              </Link>
+              <Button variant="ghost" size="sm" onClick={signOut}>
+                {t("logout")}
+              </Button>
+            </div>
+          ) : (
+            <Link
+              href="/auth/login"
+              className="inline-flex items-center justify-center h-8 px-3 rounded-lg text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/80 transition-colors"
+            >
+              {t("login")}
+            </Link>
+          )}
         </div>
       </div>
     </header>

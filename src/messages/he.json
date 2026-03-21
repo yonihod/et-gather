@@ -92,7 +92,8 @@
     "email": "אימייל",
     "password": "סיסמה",
     "signUp": "הרשמה",
-    "orContinueWith": "או המשך עם"
+    "orContinueWith": "או המשך עם",
+    "continueAnonymously": "המשך בלי התחברות →"
   },
   "common": {
     "loading": "טוען...",
