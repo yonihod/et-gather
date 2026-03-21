@@ -39,8 +39,8 @@ export default function ConfigsPage() {
   return (
     <div className="space-y-8 max-w-2xl mx-auto topo-grid -mx-4 sm:-mx-6 px-4 sm:px-6 py-2">
       <div className="animate-fade-up">
-        <h1 className="text-2xl font-bold">{t("title")}</h1>
-        <p className="text-muted-foreground mt-1">{t("subtitle")}</p>
+        <h1 className="font-display text-4xl font-extrabold tracking-tight">{t("title")}</h1>
+        <p className="text-muted-foreground mt-2">{t("subtitle")}</p>
       </div>
 
       <div className="grid gap-4" style={{ perspective: "800px" }}>

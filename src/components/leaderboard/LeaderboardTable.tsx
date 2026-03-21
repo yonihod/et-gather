@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Link } from "@/i18n/routing";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -55,22 +55,8 @@ export function LeaderboardTable() {
 
   return (
     <div className="hud-corners">
-      {/* Period selector */}
-      <div className="flex gap-1 mb-4">
-        {(["allTime", "last30", "last7"] as Period[]).map((p) => (
-          <button
-            key={p}
-            onClick={() => setPeriod(p)}
-            className={`relative px-3 py-1.5 rounded-md text-sm transition-all duration-200 ${
-              period === p
-                ? "bg-primary/15 text-primary font-medium"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            {t(p)}
-          </button>
-        ))}
-      </div>
+      {/* Period selector with sliding pill */}
+      <PeriodTabs period={period} setPeriod={setPeriod} t={t} />
 
       <div className="border rounded-md overflow-hidden">
         {loading ? (
@@ -143,6 +129,52 @@ export function LeaderboardTable() {
           </Table>
         )}
       </div>
+    </div>
+  );
+}
+
+const PERIODS: Period[] = ["allTime", "last30", "last7"];
+
+function PeriodTabs({ period, setPeriod, t }: { period: Period; setPeriod: (p: Period) => void; t: (key: string) => string }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [pillStyle, setPillStyle] = useState<{ left: number; width: number }>({ left: 0, width: 0 });
+
+  const updatePill = useCallback(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    const activeBtn = container.querySelector<HTMLElement>("[data-active='true']");
+    if (activeBtn) {
+      setPillStyle({
+        left: activeBtn.offsetLeft,
+        width: activeBtn.offsetWidth,
+      });
+    }
+  }, []);
+
+  useEffect(() => {
+    updatePill();
+  }, [period, updatePill]);
+
+  return (
+    <div ref={containerRef} className="tab-pill-container flex gap-1 mb-4">
+      <div
+        className="tab-pill"
+        style={{ left: pillStyle.left, width: pillStyle.width }}
+      />
+      {PERIODS.map((p) => (
+        <button
+          key={p}
+          data-active={period === p}
+          onClick={() => setPeriod(p)}
+          className={`relative z-10 px-3 py-1.5 rounded-md text-sm transition-colors duration-200 ${
+            period === p
+              ? "text-primary font-medium"
+              : "text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          {t(p)}
+        </button>
+      ))}
     </div>
   );
 }

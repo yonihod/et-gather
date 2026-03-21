@@ -36,7 +36,9 @@ export function GatherHistory() {
     <div className="space-y-2">
       {gathers.map((g, i) => (
         <Link key={g.id} href={`/gather/${g.id}` as "/gather"} className="block">
-          <Card className={`hover:border-primary/30 transition-colors animate-row-enter ${i % 2 === 1 ? "bg-secondary/20" : ""}`} style={{ animationDelay: `${i * 40}ms` }}>
+          <Card className={`hover:border-primary/30 transition-colors animate-row-enter ${
+            g.status === "completed" ? "card-completed" : "card-cancelled"
+          } ${i % 2 === 1 ? "bg-secondary/20" : ""}`} style={{ animationDelay: `${i * 40}ms` }}>
             <CardContent className="p-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <Badge variant={g.status === "completed" ? "default" : "outline"}>

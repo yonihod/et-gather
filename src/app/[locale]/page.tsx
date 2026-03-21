@@ -16,49 +16,49 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       {/* Hero — topo grid background for war room feel */}
       <section className="relative pt-16 pb-8 -mx-4 sm:-mx-6 px-4 sm:px-6 topo-grid">
         <div className="grid md:grid-cols-[1fr_auto] gap-12 items-center">
-          <div className="space-y-6">
-            <p className="animate-fade-up text-xs font-semibold tracking-[0.2em] uppercase text-accent">
+          <div className="space-y-8">
+            <p className="animate-fade-up text-xs font-bold tracking-[0.25em] uppercase text-accent">
               RTCW: Enemy Territory
             </p>
-            <h1 className="animate-fade-up delay-100 font-display text-5xl md:text-7xl font-bold tracking-tight leading-[1.05]">
+            <h1 className="animate-fade-up delay-100 font-display text-6xl md:text-8xl lg:text-9xl font-extrabold tracking-tighter leading-[0.95]">
               <span className="text-primary">ET</span> Gather
               <br />
-              <span className="text-muted-foreground text-3xl md:text-4xl font-normal tracking-normal">
+              <span className="text-muted-foreground text-2xl md:text-3xl font-light tracking-wide uppercase">
                 Israel
               </span>
             </h1>
-            <p className="animate-fade-up delay-200 text-muted-foreground max-w-[45ch] text-base leading-relaxed">
+            <p className="animate-fade-up delay-200 text-muted-foreground max-w-[42ch] text-base leading-relaxed">
               {t("home.subtitle")}
             </p>
 
-            <div className="animate-fade-up delay-300 flex flex-wrap gap-3 pt-2">
+            <div className="animate-fade-up delay-300 flex flex-wrap gap-4 pt-4">
               <Link
                 href="/gather"
-                className="inline-flex items-center h-11 px-6 rounded-md text-sm font-semibold bg-primary text-primary-foreground transition-all duration-200 hover:opacity-90 hover:translate-y-[-1px] active:translate-y-[0px]"
+                className="inline-flex items-center h-12 px-8 rounded-md text-sm font-bold bg-primary text-primary-foreground shadow-lg shadow-primary/20 transition-all duration-200 hover:shadow-xl hover:shadow-primary/30 hover:translate-y-[-2px] active:translate-y-[0px]"
               >
                 {t("home.createGather")}
               </Link>
               <Link
                 href="/community"
-                className="inline-flex items-center h-11 px-6 rounded-md text-sm font-medium text-muted-foreground border border-border transition-all duration-200 hover:text-accent hover:border-accent/40 active:translate-y-[0px]"
+                className="inline-flex items-center h-12 px-8 rounded-md text-sm font-semibold text-foreground/80 border-2 border-border transition-all duration-200 hover:text-accent hover:border-accent/50 active:translate-y-[0px]"
               >
                 {t("home.joinCommunity")}
               </Link>
             </div>
 
-            {/* Stats */}
-            <div className="animate-fade-up delay-400 flex gap-8 pt-6 text-sm">
+            {/* Stats — punched up scale */}
+            <div className="animate-fade-up delay-400 flex gap-10 pt-8">
               <div>
-                <span className="font-display text-3xl font-bold text-accent tabular-nums">20+</span>
-                <span className="block text-muted-foreground mt-0.5">{t("home.statsPlayers")}</span>
+                <span className="font-display text-5xl font-extrabold text-accent tabular-nums">20+</span>
+                <span className="block text-muted-foreground text-xs uppercase tracking-wider mt-1">{t("home.statsPlayers")}</span>
               </div>
-              <div className="border-s border-border ps-8">
-                <span className="font-display text-3xl font-bold text-primary">6v6</span>
-                <span className="block text-muted-foreground mt-0.5">{t("home.statsMode")}</span>
+              <div className="border-s-2 border-border ps-10">
+                <span className="font-display text-5xl font-extrabold text-primary">6v6</span>
+                <span className="block text-muted-foreground text-xs uppercase tracking-wider mt-1">{t("home.statsMode")}</span>
               </div>
-              <div className="border-s border-border ps-8">
-                <span className="text-3xl">🇮🇱</span>
-                <span className="block text-muted-foreground mt-0.5">{t("home.statsRegion")}</span>
+              <div className="border-s-2 border-border ps-10">
+                <span className="text-5xl">🇮🇱</span>
+                <span className="block text-muted-foreground text-xs uppercase tracking-wider mt-1">{t("home.statsRegion")}</span>
               </div>
             </div>
           </div>
@@ -81,15 +81,15 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       </section>
 
       {/* Gradient divider */}
-      <div className="scroll-reveal h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+      <div className="scroll-reveal h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
 
       {/* Server Status + Active Gather */}
       <section className="scroll-reveal">
         <div className="grid md:grid-cols-[1fr_300px] gap-10">
           <div>
             <div className="flex items-baseline gap-3 mb-6">
-              <h2 className="font-display text-2xl font-bold tracking-tight">{t("home.activeGather")}</h2>
-              <span className="inline-block w-2 h-2 rounded-full bg-primary animate-pulse" />
+              <h2 className="font-display text-3xl font-extrabold tracking-tight">{t("home.activeGather")}</h2>
+              <span className="inline-block w-2.5 h-2.5 rounded-full bg-primary animate-pulse" />
             </div>
             <ActiveGatherCard />
           </div>
@@ -101,9 +101,9 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
       {/* Leaderboard */}
       <section className="scroll-reveal pb-16">
-        <div className="flex items-baseline gap-3 mb-8">
-          <h2 className="font-display text-2xl font-bold tracking-tight">{t("home.leaderboard")}</h2>
-          <span className="text-xs text-muted-foreground/50 uppercase tracking-wider font-mono">Top 20</span>
+        <div className="flex items-baseline gap-4 mb-8">
+          <h2 className="font-display text-3xl font-extrabold tracking-tight">{t("home.leaderboard")}</h2>
+          <span className="text-[10px] text-muted-foreground/40 uppercase tracking-widest font-mono border border-border/40 px-2 py-0.5 rounded">Top 20</span>
         </div>
         <LeaderboardTable />
       </section>

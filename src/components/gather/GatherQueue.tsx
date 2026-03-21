@@ -175,10 +175,10 @@ export function GatherQueue() {
               return (
                 <div
                   key={i}
-                  className={`rounded-lg p-3 text-center text-sm border transition-all duration-300 ${
+                  className={`rounded-lg p-3 text-center text-sm transition-all duration-300 ${
                     participant
-                      ? "bg-primary/5 border-primary/20 text-foreground"
-                      : "bg-secondary border-transparent text-muted-foreground"
+                      ? "slot-filled text-foreground"
+                      : "slot-empty"
                   } ${isNew ? "animate-slot-pop" : ""}`}
                   style={isNew ? { animationDelay: `${(i - prevCount) * 60}ms` } : undefined}
                 >

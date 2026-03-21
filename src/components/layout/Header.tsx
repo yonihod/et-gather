@@ -33,7 +33,7 @@ export function Header() {
       <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
         <div className="flex items-center gap-6">
           <Link href="/" className="flex items-center gap-2">
-            <Image src="/images/logo.png" alt="ET Gather" width={36} height={36} className="rounded" />
+            <Image src="/images/logo.png" alt="ET Gather" width={36} height={36} />
             <span className="font-display text-primary font-bold text-lg tracking-tight">ET Gather</span>
           </Link>
           <nav className="hidden md:flex items-center gap-1">

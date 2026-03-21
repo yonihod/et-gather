@@ -20,8 +20,8 @@ export default function CommunityPage() {
   return (
     <div className="space-y-8 max-w-2xl mx-auto topo-grid -mx-4 sm:-mx-6 px-4 sm:px-6 py-2">
       <div className="animate-fade-up">
-        <h1 className="text-2xl font-bold">{t("title")}</h1>
-        <p className="text-xs text-muted-foreground/50 uppercase tracking-wider font-mono mt-1">Comms & Resources</p>
+        <h1 className="font-display text-4xl font-extrabold tracking-tight">{t("title")}</h1>
+        <p className="text-[10px] text-muted-foreground/40 uppercase tracking-widest font-mono mt-2">Comms & Resources</p>
       </div>
 
       <Card className="animate-fade-up delay-100 hud-corners">
