@@ -8,10 +8,12 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useAuth } from "@/hooks/useAuth";
 import type { Profile, AttendanceStats, Gather } from "@/types/gather";
 
 export function ProfileView({ userId }: { userId: string }) {
   const t = useTranslations("profile");
+  const { refreshProfile } = useAuth();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [stats, setStats] = useState<AttendanceStats | null>(null);
   const [recentGathers, setRecentGathers] = useState<Gather[]>([]);
@@ -69,8 +71,14 @@ export function ProfileView({ userId }: { userId: string }) {
       })
       .eq("id", userId);
 
+    setProfile({
+      ...profile,
+      display_name: editName.trim() || profile.display_name,
+      et_nickname: editNickname.trim() || null,
+    });
     setSaving(false);
-    window.location.reload();
+    setEditing(false);
+    refreshProfile();
   }
 
   if (loading) return <div className="animate-pulse h-40 bg-card rounded-lg" />;

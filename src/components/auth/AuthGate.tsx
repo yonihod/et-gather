@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 
 export function AuthGate({ children }: { children: React.ReactNode }) {
-  const { user, profile, loading } = useAuth();
+  const { user, profile, loading, refreshProfile } = useAuth();
   const [dismissed, setDismissed] = useState(false);
   const [nicknameSet, setNicknameSet] = useState(false);
 
@@ -32,7 +32,7 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
 
   // User is logged in but hasn't set nickname yet
   if (user && profile && !profile.et_nickname && !nicknameSet) {
-    return <NicknameSetup userId={user.id} currentName={profile.display_name} onComplete={() => setNicknameSet(true)} />;
+    return <NicknameSetup userId={user.id} currentName={profile.display_name} onComplete={() => { setNicknameSet(true); refreshProfile(); }} />;
   }
 
   return <>{children}</>;
@@ -62,7 +62,6 @@ function NicknameSetup({ userId, currentName, onComplete }: { userId: string; cu
 
     setSaving(false);
     onComplete();
-    window.location.reload();
   }
 
   return (

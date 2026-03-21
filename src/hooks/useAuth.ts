@@ -1,51 +1,82 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { User } from "@supabase/supabase-js";
 import type { Profile } from "@/types/gather";
 
+const supabase = createClient();
+
+// Shared state so all components using useAuth see the same data
+let listeners: Array<() => void> = [];
+let cachedUser: User | null = null;
+let cachedProfile: Profile | null = null;
+let initialized = false;
+
+async function fetchProfile(userId: string): Promise<Profile | null> {
+  const { data } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", userId)
+    .single();
+  return data as Profile | null;
+}
+
+function notifyListeners() {
+  listeners.forEach((fn) => fn());
+}
+
 export function useAuth() {
-  const [user, setUser] = useState<User | null>(null);
-  const [profile, setProfile] = useState<Profile | null>(null);
-  const [loading, setLoading] = useState(true);
-  const supabase = createClient();
+  const [, forceUpdate] = useState(0);
 
   useEffect(() => {
-    async function getUser() {
-      const { data: { user } } = await supabase.auth.getUser();
-      setUser(user);
+    const listener = () => forceUpdate((n) => n + 1);
+    listeners.push(listener);
 
-      if (user) {
-        const { data } = await supabase
-          .from("profiles")
-          .select("*")
-          .eq("id", user.id)
-          .single();
-        setProfile(data as Profile | null);
-      }
-      setLoading(false);
+    if (!initialized) {
+      initialized = true;
+      supabase.auth.getUser().then(async ({ data: { user } }) => {
+        cachedUser = user;
+        if (user) {
+          cachedProfile = await fetchProfile(user.id);
+        }
+        notifyListeners();
+      });
+
+      supabase.auth.onAuthStateChange((_event, session) => {
+        cachedUser = session?.user ?? null;
+        if (!session?.user) {
+          cachedProfile = null;
+          notifyListeners();
+        }
+      });
     }
 
-    getUser();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-      if (!session?.user) {
-        setProfile(null);
-      }
-    });
-
-    return () => subscription.unsubscribe();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    return () => {
+      listeners = listeners.filter((l) => l !== listener);
+    };
   }, []);
 
-  async function signOut() {
-    await supabase.auth.signOut();
-    setUser(null);
-    setProfile(null);
-    window.location.href = "/";
-  }
+  const refreshProfile = useCallback(async () => {
+    if (cachedUser) {
+      cachedProfile = await fetchProfile(cachedUser.id);
+      notifyListeners();
+    }
+  }, []);
 
-  return { user, profile, loading, signOut };
+  const signOut = useCallback(async () => {
+    await supabase.auth.signOut();
+    cachedUser = null;
+    cachedProfile = null;
+    notifyListeners();
+    window.location.href = "/";
+  }, []);
+
+  return {
+    user: cachedUser,
+    profile: cachedProfile,
+    loading: !initialized,
+    signOut,
+    refreshProfile,
+  };
 }
