@@ -47,11 +47,13 @@
       "6v6": "6v6"
     },
     "history": "Gather History",
+    "lobby": "Lobby",
     "noHistory": "No previous gathers",
     "alreadyActive": "There is already an active gather",
     "mustLogin": "You must log in to join",
     "unassigned": "Unassigned",
     "dragHint": "Drag players to assign teams",
+    "assignToTeam": "Assign to team",
     "chat": "Chat",
     "chatPlaceholder": "Type a message...",
     "send": "Send"

@@ -47,11 +47,13 @@
       "6v6": "6 על 6"
     },
     "history": "היסטוריית גאת׳רים",
+    "lobby": "לובי",
     "noHistory": "אין גאת׳רים קודמים",
     "alreadyActive": "כבר יש גאת׳ר פעיל",
     "mustLogin": "יש להתחבר כדי להצטרף",
     "unassigned": "לא משובצים",
     "dragHint": "גרור שחקנים לשיבוץ בקבוצות",
+    "assignToTeam": "שבץ לקבוצה",
     "chat": "צ׳אט",
     "chatPlaceholder": "כתוב הודעה...",
     "send": "שלח"

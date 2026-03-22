@@ -107,20 +107,23 @@ export function GatherChat({ gatherId, userId }: { gatherId: string; userId: str
           return (
             <div
               key={msg.id}
-              className={`flex gap-2 text-sm animate-fade-up ${isOwn ? "flex-row-reverse" : ""}`}
+              className={`flex text-sm animate-fade-up ${isOwn ? "justify-end" : "justify-start"}`}
             >
-              <div className={`max-w-[80%] ${isOwn ? "text-end" : ""}`}>
-                <div className="flex items-baseline gap-2">
+              <div className={`max-w-[80%] ${isOwn ? "text-end" : "text-start"}`}>
+                <div className={`flex items-baseline gap-2 ${isOwn ? "justify-end" : "justify-start"}`}>
                   <span className={`text-xs font-medium ${isOwn ? "text-primary" : "text-muted-foreground"}`}>
                     {name}
                   </span>
                   <span className="text-[10px] text-muted-foreground/40">{time}</span>
                 </div>
-                <p className={`text-sm mt-0.5 px-3 py-1.5 rounded-lg inline-block ${
-                  isOwn
-                    ? "bg-primary/10 text-foreground"
-                    : "bg-secondary text-foreground"
-                }`}>
+                <p
+                  dir="auto"
+                  className={`text-sm mt-0.5 px-3 py-1.5 rounded-lg inline-block text-start ${
+                    isOwn
+                      ? "bg-primary/10 text-foreground"
+                      : "bg-secondary text-foreground"
+                  }`}
+                >
                   {msg.content}
                 </p>
               </div>
