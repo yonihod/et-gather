@@ -48,6 +48,15 @@ export interface AttendanceStats {
   attendance_points: number;
 }
 
+export interface GatherMessage {
+  id: string;
+  gather_id: string;
+  user_id: string;
+  content: string;
+  created_at: string;
+  profile?: Profile;
+}
+
 export const VALID_TRANSITIONS: Record<GatherStatus, GatherStatus[]> = {
   open: ["ready", "cancelled"],
   ready: ["open", "live", "cancelled"],

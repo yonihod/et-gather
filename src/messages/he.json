@@ -49,7 +49,12 @@
     "history": "היסטוריית גאת׳רים",
     "noHistory": "אין גאת׳רים קודמים",
     "alreadyActive": "כבר יש גאת׳ר פעיל",
-    "mustLogin": "יש להתחבר כדי להצטרף"
+    "mustLogin": "יש להתחבר כדי להצטרף",
+    "unassigned": "לא משובצים",
+    "dragHint": "גרור שחקנים לשיבוץ בקבוצות",
+    "chat": "צ׳אט",
+    "chatPlaceholder": "כתוב הודעה...",
+    "send": "שלח"
   },
   "leaderboard": {
     "title": "טבלת מובילים",

@@ -382,6 +382,70 @@
   animation: row-slide-in 0.4s var(--ease-out-quart) both;
 }
 
+/* ── Top 3 podium entrance (more dramatic) ────────────────────────── */
+@keyframes podium-enter {
+  from {
+    opacity: 0;
+    transform: translateX(-12px) scale(0.97);
+  }
+  60% {
+    opacity: 1;
+    transform: translateX(2px) scale(1.01);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+.animate-podium-enter {
+  animation: podium-enter 0.55s var(--ease-out-quart) both;
+}
+
+/* ── Row hover lift ───────────────────────────────────────────────── */
+.row-hover-lift {
+  transition: transform 0.15s var(--ease-out-quart), background-color 0.15s ease;
+}
+
+.row-hover-lift:hover {
+  transform: translateX(4px);
+}
+
+[dir="rtl"] .row-hover-lift:hover {
+  transform: translateX(-4px);
+}
+
+.row-hover-lift:hover .rank-badge {
+  transition: transform 0.15s var(--ease-out-quart);
+  transform: scale(1.15);
+}
+
+/* ── Points counter animation ─────────────────────────────────────── */
+@property --pts {
+  syntax: "<integer>";
+  initial-value: 0;
+  inherits: false;
+}
+
+.count-pts {
+  transition: --pts 0.8s var(--ease-out-expo);
+  counter-reset: pts var(--pts);
+}
+
+.count-pts::after {
+  content: counter(pts);
+}
+
+/* ── Table fade transition (loading ↔ data) ───────────────────────── */
+@keyframes table-fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-table-enter {
+  animation: table-fade-in 0.35s var(--ease-out-quart) both;
+}
+
 /* ── Top 3 rank glow ──────────────────────────────────────────────── */
 @property --glow-opacity {
   syntax: "<number>";

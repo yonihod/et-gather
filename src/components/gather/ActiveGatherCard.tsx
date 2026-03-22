@@ -7,6 +7,7 @@ import { Link } from "@/i18n/routing";
 import { Badge } from "@/components/ui/badge";
 import type { GatherWithParticipants } from "@/types/gather";
 import { MOCK_GATHER_PARTICIPANTS } from "@/lib/mock-data";
+import { PlayerFigures } from "./PlayerFigures";
 
 export function ActiveGatherCard() {
   const t = useTranslations();
@@ -111,11 +112,7 @@ export function ActiveGatherCard() {
             </div>
           ))}
         </div>
-        <div className="flex gap-1 mt-5">
-          {Array.from({ length: mockMax }).map((_, i) => (
-            <div key={i} className={`h-1.5 flex-1 rounded-sm ${i < mockCount ? "bg-primary animate-segment-fill" : "bg-border"}`} style={i < mockCount ? { animationDelay: `${i * 50 + 200}ms` } : undefined} />
-          ))}
-        </div>
+        <PlayerFigures total={mockMax} filled={mockCount} className="mt-5" />
       </Link>
     );
   }
@@ -210,19 +207,15 @@ export function ActiveGatherCard() {
         ))}
       </div>
 
-      {/* Progress bar — flashes gold when full */}
-      <div className={`flex gap-1 mt-2 ${isFull && prevCount < gather.max_players ? "animate-locked-flash" : ""}`}>
-        {Array.from({ length: gather.max_players }).map((_, i) => (
-          <div
-            key={i}
-            className={`h-1.5 flex-1 rounded-sm transition-all duration-300 ${
-              i < participantCount
-                ? isLive ? "bg-destructive" : isFull ? "bg-accent" : "bg-primary"
-                : "bg-border"
-            } ${i >= prevCount && i < participantCount ? "animate-segment-fill" : ""}`}
-            style={i >= prevCount && i < participantCount ? { animationDelay: `${(i - prevCount) * 50}ms` } : undefined}
-          />
-        ))}
+      {/* Player figures — shows occupancy */}
+      <div className={isFull && prevCount < gather.max_players ? "animate-locked-flash" : ""}>
+        <PlayerFigures
+          total={gather.max_players}
+          filled={participantCount}
+          prevFilled={prevCount}
+          variant={isLive ? "destructive" : isFull ? "accent" : "primary"}
+          className="mt-2"
+        />
       </div>
     </div>
   );

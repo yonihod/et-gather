@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import type { GatherWithParticipants, GatherMode } from "@/types/gather";
+import { PlayerFigures } from "./PlayerFigures";
 
 export function GatherQueue() {
   const t = useTranslations("gather");
@@ -228,23 +229,15 @@ export function GatherQueue() {
           </div>
         )}
 
-        {/* Animated progress bar — flashes when full ("locked and loaded") */}
-        <div className={`flex gap-1 mt-6 ${isFull && prevCount < gather.max_players ? "animate-locked-flash" : ""}`}>
-          {Array.from({ length: gather.max_players }).map((_, i) => (
-            <div
-              key={i}
-              className={`h-1.5 flex-1 rounded-sm transition-all duration-300 ${
-                i < participants.length
-                  ? isLive ? "bg-destructive" : isFull ? "bg-accent" : "bg-primary"
-                  : "bg-border"
-              } ${i >= prevCount && i < participants.length ? "animate-segment-fill" : ""}`}
-              style={
-                i >= prevCount && i < participants.length
-                  ? { animationDelay: `${(i - prevCount) * 50}ms` }
-                  : undefined
-              }
-            />
-          ))}
+        {/* Player figures — shows occupancy */}
+        <div className={isFull && prevCount < gather.max_players ? "animate-locked-flash" : ""}>
+          <PlayerFigures
+            total={gather.max_players}
+            filled={participants.length}
+            prevFilled={prevCount}
+            variant={isLive ? "destructive" : isFull ? "accent" : "primary"}
+            className="mt-6"
+          />
         </div>
 
         {/* Actions */}

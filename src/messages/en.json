@@ -49,7 +49,12 @@
     "history": "Gather History",
     "noHistory": "No previous gathers",
     "alreadyActive": "There is already an active gather",
-    "mustLogin": "You must log in to join"
+    "mustLogin": "You must log in to join",
+    "unassigned": "Unassigned",
+    "dragHint": "Drag players to assign teams",
+    "chat": "Chat",
+    "chatPlaceholder": "Type a message...",
+    "send": "Send"
   },
   "leaderboard": {
     "title": "Leaderboard",
