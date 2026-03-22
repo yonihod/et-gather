@@ -83,7 +83,7 @@ export function LeaderboardTable() {
                       className={`row-hover-lift scoreboard-row ${rankGlow(i)} ${
                         isPodium ? "animate-podium-enter" : "animate-row-enter"
                       }`}
-                      style={{ animationDelay: isPodium ? `${i * 100}ms` : `${i * 40 + 200}ms` }}
+                      style={{ animationDelay: isPodium ? `${i * 150 + 100}ms` : `${i * 40 + 550}ms` }}
                     >
                       <TableCell>
                         {isPodium ? (
@@ -124,7 +124,7 @@ export function LeaderboardTable() {
                         : i === 2 ? "text-orange-400"
                         : "text-primary"
                       }`}>
-                        <AnimatedPoints value={s.attendance_points} delay={isPodium ? i * 100 + 200 : i * 40 + 400} />
+                        <AnimatedPoints value={s.attendance_points} delay={isPodium ? i * 150 + 300 : i * 40 + 750} />
                       </TableCell>
                     </TableRow>
                   );
