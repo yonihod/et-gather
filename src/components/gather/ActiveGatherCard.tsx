@@ -6,7 +6,6 @@ import { createClient } from "@/lib/supabase/client";
 import { Link } from "@/i18n/routing";
 import { Badge } from "@/components/ui/badge";
 import type { GatherWithParticipants } from "@/types/gather";
-import { MOCK_GATHER_PARTICIPANTS } from "@/lib/mock-data";
 import { PlayerFigures } from "./PlayerFigures";
 
 export function ActiveGatherCard() {
@@ -83,36 +82,36 @@ export function ActiveGatherCard() {
     );
   }
 
-  // Mock gather (no real gather active)
+  // No active gather — show inviting empty state
   if (!gather) {
-    const mockCount = MOCK_GATHER_PARTICIPANTS.length;
-    const mockMax = 10;
+    const ghostMax = 10;
     return (
-      <Link href="/gather" className="block border rounded-md p-6 hover:border-primary/40 transition-colors">
+      <Link href="/gather" className="block border rounded-md p-6 hover:border-primary/40 transition-colors hud-corners group">
         <div className="flex items-baseline justify-between mb-4">
           <div className="flex items-center gap-3">
-            <Badge variant="default">{t("gather.status.open")}</Badge>
+            <Badge variant="outline" className="opacity-50">{t("gather.status.open")}</Badge>
             <span className="text-sm text-muted-foreground">{t("gather.mode.5v5")}</span>
           </div>
-          <span className="text-sm tabular-nums">
-            <span className="font-bold text-foreground">{mockCount}</span>
-            <span className="text-muted-foreground">/{mockMax}</span>
+          <span className="text-sm tabular-nums text-muted-foreground/40">
+            0/{ghostMax}
           </span>
         </div>
         <div className="grid grid-cols-2 gap-x-8 gap-y-1">
-          {MOCK_GATHER_PARTICIPANTS.map((name, i) => (
-            <div key={name} className="flex items-center gap-2 py-1.5 text-sm border-b border-border/40 animate-slot-pop" style={{ animationDelay: `${i * 60}ms` }}>
-              <span className="text-xs">🇮🇱</span>
-              <span className="font-medium">{name}</span>
-            </div>
-          ))}
-          {Array.from({ length: mockMax - mockCount }).map((_, i) => (
-            <div key={`empty-${i}`} className="py-1.5 text-sm text-primary/40 border-b border-border/20 italic">
-              + {t("gather.join")}
+          {Array.from({ length: ghostMax }).map((_, i) => (
+            <div
+              key={i}
+              className="flex items-center gap-2 py-1.5 text-sm border-b border-border/20 animate-row-enter"
+              style={{ animationDelay: `${i * 40}ms` }}
+            >
+              <span className="w-4 h-4 rounded-full bg-secondary/40" />
+              <div className={`h-2.5 rounded-sm bg-secondary/30 ${i % 3 === 0 ? "w-20" : i % 3 === 1 ? "w-16" : "w-24"}`} />
             </div>
           ))}
         </div>
-        <PlayerFigures total={mockMax} filled={mockCount} className="mt-5" />
+        <PlayerFigures total={ghostMax} filled={0} className="mt-5 opacity-30" />
+        <p className="text-center text-sm text-muted-foreground mt-4 group-hover:text-primary transition-colors">
+          {t("home.noActiveGather")}
+        </p>
       </Link>
     );
   }

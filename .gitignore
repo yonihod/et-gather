@@ -27,6 +27,11 @@ yarn-error.log*
 
 # local env files
 .env*.local
+bot/.env
+
+# bot build output
+bot/dist
+bot/node_modules
 
 # vercel
 .vercel

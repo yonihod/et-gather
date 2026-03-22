@@ -7,7 +7,6 @@ import { Link } from "@/i18n/routing";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import type { AttendanceStats } from "@/types/gather";
-import { MOCK_LEADERBOARD } from "@/lib/mock-data";
 
 type Period = "allTime" | "last30" | "last7";
 
@@ -30,7 +29,7 @@ export function LeaderboardTable() {
           .select("*")
           .order("attendance_points", { ascending: false })
           .limit(20);
-        setStats((data as AttendanceStats[])?.length ? (data as AttendanceStats[]) : MOCK_LEADERBOARD);
+        setStats((data as AttendanceStats[]) ?? []);
       } else {
         const days = period === "last30" ? 30 : 7;
         const since = new Date();
@@ -38,7 +37,7 @@ export function LeaderboardTable() {
         const { data } = await supabase.rpc("get_leaderboard", {
           since_date: since.toISOString(),
         });
-        setStats((data as AttendanceStats[])?.length ? (data as AttendanceStats[]) : MOCK_LEADERBOARD.slice(0, 5));
+        setStats((data as AttendanceStats[]) ?? []);
       }
       setLoading(false);
 
@@ -62,7 +61,7 @@ export function LeaderboardTable() {
         {loading ? (
           <LeaderboardSkeleton />
         ) : stats.length === 0 ? (
-          <div className="p-8 text-center text-muted-foreground text-sm italic">No intel yet — play some gathers to get on the board.</div>
+          <LeaderboardGhost t={t} />
         ) : (
           <div>
             <Table>
@@ -241,6 +240,71 @@ function PeriodTabs({ period, setPeriod, t }: { period: Period; setPeriod: (p: P
     </div>
   );
 }
+
+/** Ghost table — shows the leaderboard structure with anonymous placeholder rows */
+const GHOST_WIDTHS = ["w-24", "w-20", "w-28", "w-16", "w-22", "w-18", "w-20", "w-14"];
+
+function LeaderboardGhost({ t }: { t: (key: string) => string }) {
+  return (
+    <div className="relative">
+      <Table>
+        <TableHeader>
+          <TableRow className="scoreboard-header">
+            <TableHead className="w-14">{t("rank")}</TableHead>
+            <TableHead>{t("player")}</TableHead>
+            <TableHead className="text-end">{t("gathers")}</TableHead>
+            <TableHead className="text-end">{t("points")}</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {Array.from({ length: 8 }).map((_, i) => {
+            const isPodium = i < 3;
+            return (
+              <TableRow
+                key={i}
+                className={`${rankGlowGhost(i)} animate-row-enter`}
+                style={{ animationDelay: `${i * 50}ms` }}
+              >
+                <TableCell>
+                  {isPodium ? (
+                    <span className={`rank-badge ${
+                      i === 0 ? "rank-badge-gold" : i === 1 ? "rank-badge-silver" : "rank-badge-bronze"
+                    } opacity-30`}>
+                      {i + 1}
+                    </span>
+                  ) : (
+                    <span className="rank-badge text-muted-foreground/20">{i + 1}</span>
+                  )}
+                </TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-3">
+                    <div className={`w-7 h-7 rounded-full ${isPodium ? "bg-primary/8" : "bg-secondary/60"}`} />
+                    <div className={`h-3 rounded-sm ${GHOST_WIDTHS[i]} ${isPodium ? "bg-primary/8" : "bg-secondary/50"}`} />
+                  </div>
+                </TableCell>
+                <TableCell className="text-end">
+                  <div className={`h-3 w-6 rounded-sm ms-auto ${isPodium ? "bg-primary/8" : "bg-secondary/40"}`} />
+                </TableCell>
+                <TableCell className="text-end">
+                  <div className={`h-3 w-8 rounded-sm ms-auto ${isPodium ? "bg-accent/10" : "bg-secondary/40"}`} />
+                </TableCell>
+              </TableRow>
+            );
+          })}
+        </TableBody>
+      </Table>
+      {/* Overlay CTA */}
+      <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-t from-background via-background/60 to-transparent">
+        <p className="text-sm text-muted-foreground italic">
+          No intel yet — play some gathers to get on the board.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+const rankGlowGhost = (i: number) =>
+  i === 0 ? "rank-glow-gold opacity-40" : i === 1 ? "rank-glow-silver opacity-40" : i === 2 ? "rank-glow-bronze opacity-40" : "opacity-30";
 
 function LeaderboardSkeleton() {
   return (

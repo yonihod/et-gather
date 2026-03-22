@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import { useTranslations } from "next-intl";
+import { MapPreview } from "./MapPreview";
 
 interface PlayerInfo {
   score: number;
@@ -91,10 +92,9 @@ export function ServerStatus() {
         </span>
       </div>
 
-      {/* Map — with colored accent bar */}
-      <div className="map-accent-bar text-xs mb-3">
-        <div className="text-muted-foreground/70 text-[10px] uppercase tracking-wider">{t("map")}</div>
-        <div className="text-accent font-semibold text-sm">{data.map}</div>
+      {/* Map preview */}
+      <div className="mb-3">
+        <MapPreview mapName={data.map} />
       </div>
 
       {/* Player scoreboard */}
