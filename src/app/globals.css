@@ -400,8 +400,7 @@
 }
 
 .animate-podium-enter {
-  opacity: 0;
-  animation: podium-enter 0.55s var(--ease-out-quart) forwards;
+  animation: podium-enter 0.55s var(--ease-out-quart) both;
 }
 
 /* ── Row hover lift ───────────────────────────────────────────────── */
