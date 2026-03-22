@@ -2,6 +2,7 @@ import { Client, Events, GatewayIntentBits } from "discord.js";
 import { config } from "./config.js";
 import { handleGatherCommand } from "./commands/index.js";
 import { startRealtimeListener } from "./events/realtime.js";
+import { startAutoCancelTimer } from "./events/auto-cancel.js";
 
 const client = new Client({
   intents: [GatewayIntentBits.Guilds],
@@ -10,6 +11,7 @@ const client = new Client({
 client.once(Events.ClientReady, (c) => {
   console.log(`Bot online as ${c.user.tag}`);
   startRealtimeListener(client);
+  startAutoCancelTimer(client);
 });
 
 client.on(Events.InteractionCreate, async (interaction) => {

@@ -33,6 +33,20 @@ export function GatherQueue() {
       .limit(1)
       .single();
 
+    // Auto-cancel stale gathers (open/ready for 30+ minutes)
+    if (data && (data.status === "open" || data.status === "ready")) {
+      const age = Date.now() - new Date(data.created_at).getTime();
+      if (age > 30 * 60 * 1000) {
+        await supabase
+          .from("gathers")
+          .update({ status: "cancelled", cancelled_at: new Date().toISOString() })
+          .eq("id", data.id);
+        setGather(null);
+        setLoading(false);
+        return;
+      }
+    }
+
     setGather(data as GatherWithParticipants | null);
     setLoading(false);
   }
