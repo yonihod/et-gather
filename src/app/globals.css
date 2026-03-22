@@ -379,7 +379,8 @@
 }
 
 .animate-row-enter {
-  animation: row-slide-in 0.4s var(--ease-out-quart) both;
+  opacity: 0;
+  animation: row-slide-in 0.4s var(--ease-out-quart) forwards;
 }
 
 /* ── Top 3 podium entrance (more dramatic) ────────────────────────── */
@@ -399,7 +400,8 @@
 }
 
 .animate-podium-enter {
-  animation: podium-enter 0.55s var(--ease-out-quart) both;
+  opacity: 0;
+  animation: podium-enter 0.55s var(--ease-out-quart) forwards;
 }
 
 /* ── Row hover lift ───────────────────────────────────────────────── */

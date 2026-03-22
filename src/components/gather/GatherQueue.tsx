@@ -1,13 +1,14 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import type { GatherWithParticipants, GatherMode } from "@/types/gather";
+import type { GatherWithParticipants, GatherMode, GatherParticipant } from "@/types/gather";
 import { PlayerFigures } from "./PlayerFigures";
+import { GatherChat } from "./GatherChat";
 
 export function GatherQueue() {
   const t = useTranslations("gather");
@@ -15,14 +16,15 @@ export function GatherQueue() {
   const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
+  const [dragOverZone, setDragOverZone] = useState<string | null>(null);
   const prevStatusRef = useRef<string | null>(null);
   const prevCountRef = useRef(0);
+  const draggedRef = useRef<string | null>(null);
+  const dragCounterRef = useRef<Record<string, number>>({});
   const supabase = createClient();
 
   async function fetchData() {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const { data: { user } } = await supabase.auth.getUser();
     setUserId(user?.id ?? null);
 
     const { data } = await supabase
@@ -86,6 +88,83 @@ export function GatherQueue() {
     setActionLoading(false);
   }
 
+  // ── Drag & Drop ──────────────────────────────────────────────────
+  const movePlayer = useCallback(async (participantId: string, targetTeam: number | null) => {
+    if (!gather) return;
+
+    // Optimistic update
+    setGather((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        participants: prev.participants.map((p) =>
+          p.id === participantId ? { ...p, team: targetTeam } : p
+        ),
+      };
+    });
+
+    await supabase
+      .from("gather_participants")
+      .update({ team: targetTeam })
+      .eq("id", participantId);
+    // Real-time subscription will confirm/correct
+  }, [gather, supabase]);
+
+  function handleDragStart(e: React.DragEvent, participant: GatherParticipant) {
+    draggedRef.current = participant.id;
+    e.dataTransfer.setData("text/plain", participant.id);
+    e.dataTransfer.effectAllowed = "move";
+    // Make the drag image slightly transparent
+    if (e.currentTarget instanceof HTMLElement) {
+      e.currentTarget.style.opacity = "0.5";
+    }
+  }
+
+  function handleDragEnd(e: React.DragEvent) {
+    draggedRef.current = null;
+    setDragOverZone(null);
+    if (e.currentTarget instanceof HTMLElement) {
+      e.currentTarget.style.opacity = "";
+    }
+  }
+
+  function handleDrop(e: React.DragEvent, targetTeam: number | null) {
+    e.preventDefault();
+    setDragOverZone(null);
+    const participantId = e.dataTransfer.getData("text/plain");
+    if (participantId) movePlayer(participantId, targetTeam);
+  }
+
+  function handleDragOver(e: React.DragEvent) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+  }
+
+  function handleDragEnter(zone: string) {
+    dragCounterRef.current[zone] = (dragCounterRef.current[zone] || 0) + 1;
+    setDragOverZone(zone);
+  }
+
+  function handleDragLeave(zone: string) {
+    dragCounterRef.current[zone] = (dragCounterRef.current[zone] || 1) - 1;
+    if (dragCounterRef.current[zone] <= 0) {
+      dragCounterRef.current[zone] = 0;
+      setDragOverZone((prev) => prev === zone ? null : prev);
+    }
+  }
+
+  function handleDropZone(e: React.DragEvent, targetTeam: number | null, zone: string) {
+    e.preventDefault();
+    dragCounterRef.current[zone] = 0;
+    setDragOverZone(null);
+    const participantId = e.dataTransfer.getData("text/plain");
+    if (participantId) movePlayer(participantId, targetTeam);
+  }
+
+  const isCreator = gather?.created_by === userId;
+  const canDrag = isCreator && gather && ["open", "ready", "live"].includes(gather.status);
+
+  // ── Render ────────────────────────────────────────────────────────
   if (loading) {
     return (
       <Card>
@@ -122,7 +201,6 @@ export function GatherQueue() {
 
   const participants = gather.participants ?? [];
   const isInGather = participants.some((p) => p.user_id === userId);
-  const isCreator = gather.created_by === userId;
   const isFull = participants.length >= gather.max_players;
   const halfSize = gather.max_players / 2;
 
@@ -135,6 +213,36 @@ export function GatherQueue() {
   const prevCount = prevCountRef.current;
   prevStatusRef.current = gather.status;
   prevCountRef.current = participants.length;
+
+  // Show team view if teams are assigned, OR if creator wants to organize (has participants)
+  const hasTeamAssignments = team1.length > 0 || team2.length > 0;
+  const showTeams = hasTeamAssignments || (isCreator && participants.length >= 2);
+
+  function renderPlayerSlot(participant: GatherParticipant | undefined, index: number, teamColor?: string) {
+    if (!participant) {
+      return (
+        <div className={`rounded-lg p-3 text-center text-sm slot-empty ${teamColor || ""}`}>
+          Slot {index + 1}
+        </div>
+      );
+    }
+
+    const name = participant.profile?.display_name || participant.profile?.et_nickname || "Player";
+
+    return (
+      <div
+        draggable={canDrag}
+        onDragStart={canDrag ? (e) => handleDragStart(e, participant) : undefined}
+        onDragEnd={canDrag ? handleDragEnd : undefined}
+        className={`rounded-lg p-3 text-center text-sm transition-all duration-200 ${
+          teamColor || "slot-filled text-foreground"
+        } ${canDrag ? "cursor-grab active:cursor-grabbing" : ""} animate-slot-pop`}
+        style={{ animationDelay: `${index * 60}ms` }}
+      >
+        {name}
+      </div>
+    );
+  }
 
   return (
     <Card
@@ -167,8 +275,15 @@ export function GatherQueue() {
       </CardHeader>
 
       <CardContent>
+        {/* Drag hint for creator */}
+        {canDrag && (
+          <p className="text-[10px] text-muted-foreground/50 uppercase tracking-wider text-center mb-3">
+            {t("dragHint")}
+          </p>
+        )}
+
         {/* Player slots */}
-        {gather.status === "open" || (gather.status === "ready" && team1.length === 0) ? (
+        {!showTeams ? (
           <div className="grid grid-cols-2 gap-3">
             {Array.from({ length: gather.max_players }).map((_, i) => {
               const participant = unassigned[i] || participants[i];
@@ -176,9 +291,12 @@ export function GatherQueue() {
               return (
                 <div
                   key={i}
+                  draggable={canDrag && !!participant}
+                  onDragStart={canDrag && participant ? (e) => handleDragStart(e, participant) : undefined}
+                  onDragEnd={canDrag ? handleDragEnd : undefined}
                   className={`rounded-lg p-3 text-center text-sm transition-all duration-300 ${
                     participant
-                      ? "slot-filled text-foreground"
+                      ? `slot-filled text-foreground ${canDrag ? "cursor-grab active:cursor-grabbing" : ""}`
                       : "slot-empty"
                   } ${isNew ? "animate-slot-pop" : ""}`}
                   style={isNew ? { animationDelay: `${(i - prevCount) * 60}ms` } : undefined}
@@ -189,44 +307,84 @@ export function GatherQueue() {
             })}
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-6">
-            <div>
-              <h3 className="font-semibold text-center mb-3 text-blue-400">{t("team1")}</h3>
-              <div className="space-y-2">
-                {Array.from({ length: halfSize }).map((_, i) => (
-                  <div
-                    key={i}
-                    className={`rounded-lg p-3 text-center text-sm transition-all duration-300 ${
-                      team1[i]
-                        ? "bg-blue-500/10 border border-blue-500/20 animate-slot-pop"
-                        : "bg-secondary text-muted-foreground"
-                    }`}
-                    style={team1[i] ? { animationDelay: `${i * 80}ms` } : undefined}
-                  >
-                    {team1[i]?.profile?.display_name || `Slot ${i + 1}`}
-                  </div>
-                ))}
+          <>
+            <div className="grid grid-cols-2 gap-6">
+              {/* Team 1 — drop zone */}
+              <div
+                onDragOver={canDrag ? handleDragOver : undefined}
+                onDragEnter={canDrag ? () => setDragOverZone("team1") : undefined}
+                onDragLeave={canDrag ? () => setDragOverZone(null) : undefined}
+                onDrop={canDrag ? (e) => handleDrop(e, 1) : undefined}
+                className={`transition-all duration-200 rounded-lg p-2 -m-2 ${
+                  dragOverZone === "team1" ? "ring-2 ring-blue-400/50 bg-blue-500/5" : ""
+                }`}
+              >
+                <h3 className="font-semibold text-center mb-3 text-blue-400">{t("team1")}</h3>
+                <div className="space-y-2">
+                  {Array.from({ length: halfSize }).map((_, i) => (
+                    <div key={i}>
+                      {renderPlayerSlot(
+                        team1[i],
+                        i,
+                        team1[i] ? "bg-blue-500/10 border border-blue-500/20 text-foreground" : undefined
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Team 2 — drop zone */}
+              <div
+                onDragOver={canDrag ? handleDragOver : undefined}
+                onDragEnter={canDrag ? () => setDragOverZone("team2") : undefined}
+                onDragLeave={canDrag ? () => setDragOverZone(null) : undefined}
+                onDrop={canDrag ? (e) => handleDrop(e, 2) : undefined}
+                className={`transition-all duration-200 rounded-lg p-2 -m-2 ${
+                  dragOverZone === "team2" ? "ring-2 ring-red-400/50 bg-red-500/5" : ""
+                }`}
+              >
+                <h3 className="font-semibold text-center mb-3 text-red-400">{t("team2")}</h3>
+                <div className="space-y-2">
+                  {Array.from({ length: halfSize }).map((_, i) => (
+                    <div key={i}>
+                      {renderPlayerSlot(
+                        team2[i],
+                        i,
+                        team2[i] ? "bg-red-500/10 border border-red-500/20 text-foreground" : undefined
+                      )}
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
-            <div>
-              <h3 className="font-semibold text-center mb-3 text-red-400">{t("team2")}</h3>
-              <div className="space-y-2">
-                {Array.from({ length: halfSize }).map((_, i) => (
-                  <div
-                    key={i}
-                    className={`rounded-lg p-3 text-center text-sm transition-all duration-300 ${
-                      team2[i]
-                        ? "bg-red-500/10 border border-red-500/20 animate-slot-pop"
-                        : "bg-secondary text-muted-foreground"
-                    }`}
-                    style={team2[i] ? { animationDelay: `${i * 80 + 200}ms` } : undefined}
-                  >
-                    {team2[i]?.profile?.display_name || `Slot ${i + 1}`}
-                  </div>
-                ))}
+
+            {/* Unassigned — drop zone (only show if there are unassigned or user is dragging) */}
+            {(unassigned.length > 0 || canDrag) && (
+              <div
+                onDragOver={canDrag ? handleDragOver : undefined}
+                onDragEnter={canDrag ? () => setDragOverZone("unassigned") : undefined}
+                onDragLeave={canDrag ? () => setDragOverZone(null) : undefined}
+                onDrop={canDrag ? (e) => handleDrop(e, null) : undefined}
+                className={`mt-4 pt-4 border-t transition-all duration-200 rounded-lg p-2 -mx-2 ${
+                  dragOverZone === "unassigned" ? "ring-2 ring-primary/50 bg-primary/5" : ""
+                }`}
+              >
+                <h3 className="font-medium text-center mb-2 text-muted-foreground text-sm">{t("unassigned")}</h3>
+                <div className="grid grid-cols-2 gap-2">
+                  {unassigned.map((p, i) => (
+                    <div key={p.id}>
+                      {renderPlayerSlot(p, i)}
+                    </div>
+                  ))}
+                  {unassigned.length === 0 && canDrag && (
+                    <div className="col-span-2 text-center text-xs text-muted-foreground/30 py-2 slot-empty rounded-lg">
+                      Drop here to unassign
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          </div>
+            )}
+          </>
         )}
 
         {/* Player figures — shows occupancy */}
@@ -259,6 +417,11 @@ export function GatherQueue() {
           )}
           {!userId && <p className="text-muted-foreground text-sm">{t("mustLogin")}</p>}
         </div>
+
+        {/* Chat — visible to participants */}
+        {isInGather && userId && ["open", "ready", "live"].includes(gather.status) && (
+          <GatherChat gatherId={gather.id} userId={userId} />
+        )}
       </CardContent>
     </Card>
   );
@@ -273,7 +436,6 @@ const TACTICAL_MESSAGES = [
 ];
 
 function TacticalEmptyState() {
-  // Pick a message based on the current minute so it changes but isn't random on every render
   const msgIndex = Math.floor(Date.now() / 60000) % TACTICAL_MESSAGES.length;
   return (
     <p className="text-muted-foreground italic">

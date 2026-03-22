@@ -64,7 +64,7 @@ export function LeaderboardTable() {
         ) : stats.length === 0 ? (
           <div className="p-8 text-center text-muted-foreground text-sm italic">No intel yet — play some gathers to get on the board.</div>
         ) : (
-          <div className="animate-table-enter">
+          <div>
             <Table>
               <TableHeader>
                 <TableRow className="scoreboard-header">
