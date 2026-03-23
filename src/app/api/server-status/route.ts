@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
+export const dynamic = "force-dynamic";
+
 const offline = { online: false, hostname: "", map: "", players: [], maxPlayers: 0 };
 
 export async function GET() {
@@ -29,7 +31,7 @@ export async function GET() {
         players: data.players,
         maxPlayers: data.max_players,
       },
-      { headers: { "Cache-Control": "public, s-maxage=15, stale-while-revalidate=30" } }
+      { headers: { "Cache-Control": "no-store, max-age=0" } }
     );
   } catch (err) {
     console.error("server-status error:", err);
